@@ -1,0 +1,22 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "2d-career",
+  "main": "./worker/index.ts",
+  "compatibility_date": "2026-07-22",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    // SPA handling would otherwise answer /api and /auth with index.html.
+    "run_worker_first": ["/api/*", "/auth/*"]
+  },
+  "r2_buckets": [
+    {
+      "binding": "DATA",
+      "bucket_name": "career-framework-data"
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+}

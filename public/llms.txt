@@ -1,0 +1,107 @@
+# Career framework — skills × leadership
+
+A two-axis career and remuneration framework, implementing the Corporate Rebels
+"remuneration diamond" for flat organisations. Live at https://2d-career.coscient.workers.dev
+
+Source of the method:
+https://www.corporate-rebels.com/blog/remuneration-method-for-flat-organizations
+
+## The model
+
+Two axes, three levels each, giving nine grades written as `<leadership><skill>` — 1A … 3C.
+
+- Skills & capabilities: A foundational, B developed, C advanced. Stored as 1 | 2 | 3.
+- Leadership: 1 self, 2 team, 3 organisation. Scope of responsibility, not headcount.
+
+Each grade maps to a pay band; several grades share a band on purpose, so a deep specialist
+(1C) can be paid like a team lead (2B).
+
+Peers score the colleagues they work with. Each assessment averages its own items into one
+skill number and one leadership number; those are averaged across peers, then rounded to a
+grade. Self-assessments are recorded and displayed but never counted. The result is advice
+to whoever owns pay, never an automatic decision.
+
+## Two workspaces
+
+- Local: no account, state in browser localStorage, nothing uploaded.
+- Team: Google sign-in, join by 6-character code, state in Cloudflare R2, shared by the team.
+  Scores are attributed to the signed-in account and visible to every member.
+
+## Data model
+
+```
+AppState  { currency, tracks[], leadership[], people[], assessments[], bands[] }
+Track     { id, name, summary, capabilities: [{ id, name, levels: {1,2,3} }] }
+Leadership{ id, name, levels: {1,2,3} }            # shared by all tracks
+Person    { id, name, role, trackId, accountId? }  # accountId = claimed by an account
+Assessment{ id, personId, rater, raterId?, kind: 'self'|'peer', date,
+            skills: {capabilityId: 1|2|3}, leadership: {dimensionId: 1|2|3}, note }
+PayBand   { id, label, grades: ['1C','2B','3A'], amount }
+```
+
+`levels` values are always 1 | 2 | 3; on the skills axis they read as A | B | C.
+`currency` is free text — a symbol, a code, or empty for bare numbers.
+
+## Import / export
+
+The UI exports and imports this shape as JSON. `/api` is not needed for that: download a
+starting file from the Template button, fill it in, and import it. Minimum viable file
+requires `tracks` and `bands`; `people` and `assessments` may be empty.
+
+## HTTP API
+
+Two credentials work: the browser session cookie from Google sign-in, or a personal access
+token. A signed-in user mints a token on the Team tab; it is shown once and can be revoked
+there at any time.
+
+```
+curl -H "Authorization: Bearer car_xxx_yyy" https://2d-career.coscient.workers.dev/api/me
+```
+
+A token acts as the person who minted it: same teams, same role, and their name recorded as
+the rater on anything it submits. Token management (`/api/tokens*`) is deliberately
+cookie-only, so a leaked token cannot mint more tokens or revoke existing ones.
+
+```
+GET    /api/me                                   { user, teams, signInEnabled }
+POST   /api/teams                                { name }
+POST   /api/teams/join                           { code }
+GET    /api/teams/:id                            { team, state }
+PUT    /api/teams/:id                            { state, version }   409 if stale
+PATCH  /api/teams/:id                            { name }             admin
+DELETE /api/teams/:id                                                 owner, irreversible
+POST   /api/teams/:id/assessments                { assessment }
+DELETE /api/teams/:id/assessments/:assessmentId                       rater or admin
+POST   /api/teams/:id/claim                      { personId | null }
+PUT    /api/teams/:id/members/:userId            { role }             owner
+DELETE /api/teams/:id/members/:userId                                 admin
+POST   /api/teams/:id/code                                            admin
+POST   /api/teams/:id/leave
+
+DELETE /api/me                                                        cookie only, deletes account
+GET    /api/tokens                               { tokens }           cookie only
+POST   /api/tokens                               { name } → { token, secret }  cookie only
+DELETE /api/tokens/:id                                                cookie only
+```
+
+Typical agent flow: `GET /api/me` to find the team id, `GET /api/teams/:id` for the
+framework, roster and scores, then `POST /api/teams/:id/assessments` to submit a score.
+Framework edits use `PUT /api/teams/:id` with the `stateVersion` from the last read; on 409
+re-read and retry rather than forcing.
+
+Roles: member < admin < owner. Exactly one owner per team. Every rule is enforced
+server-side, not only in the UI.
+
+## Lifecycle
+
+Deleting an account removes its tokens and memberships, strips its name from scores it gave
+(the scores stay, so grades do not move), and passes owned teams to another member.
+
+Teams are isolated — separate roster, framework, bands and scores; one account gets a
+separate roster row per team. Removing a member keeps their row and their scores. Deleting a
+team destroys its framework, roster and scores permanently; there is no undo.
+
+## Working on the code
+
+See AGENTS.md in the repository for architecture, conventions and constraints.
+Styled with the Keel design system (https://keel.coscient.workers.dev).

@@ -1,0 +1,275 @@
+import { ArrowRight, ExternalLink, FileJson } from 'lucide-react';
+import type { AppState, Grade, LeadershipLevel } from '../types';
+import type { Actions } from '../store';
+import { LEADERSHIP_AXIS, LETTERS, SKILL_AXIS, bandFor, formatMoney } from '../scoring';
+import { REPO_URL, SOURCE, buildTemplate, downloadJson } from '../template';
+import { CurrencyField } from '../components/ui';
+
+const LEAD_ROWS: LeadershipLevel[] = [3, 2, 1];
+
+const STEPS = [
+  {
+    title: 'Describe the work',
+    body: 'Write your own tracks — UX design, brand, engineering, whatever your organisation actually has — and say what foundational, developed and advanced look like for each capability in them.',
+  },
+  {
+    title: 'Agree the leadership ladder',
+    body: 'One ladder for everyone: responsibility for yourself, for the team, for the organisation. It is deliberately not per-craft, so a designer and an engineer at level 2 mean the same thing.',
+  },
+  {
+    title: 'Peers score peers',
+    body: 'Everyone rates the colleagues they genuinely work with on both axes. Nobody is scored by someone who has never seen their work.',
+  },
+  {
+    title: 'The average becomes advice',
+    body: 'Peer scores are averaged into a single grade, and that grade goes to whoever owns pay — a remuneration commission, or leadership — as advice. The number never decides on its own.',
+  },
+];
+
+export function HomeView({
+  state,
+  actions,
+  onNavigate,
+  signedIn,
+  signInEnabled,
+}: {
+  state: AppState;
+  actions: Actions;
+  onNavigate: (tab: 'matrix' | 'framework' | 'assess' | 'people' | 'team') => void;
+  signedIn: boolean;
+  signInEnabled: boolean;
+}) {
+  return (
+    <div className="stack">
+      <section className="hero">
+        <p className="hero__kicker">A two-dimensional career framework</p>
+        <h2 className="hero__title">
+          Pay follows the work someone does, not the title they were given.
+        </h2>
+        <p className="hero__lede">
+          Most career ladders bundle craft and leadership into one line, so the only way up is to
+          manage people. This one keeps them apart. Skills &amp; capabilities run A → C. Leadership
+          runs 1 → 3. Nine cells, a handful of pay bands, and a grade that is arrived at by the
+          people you work with rather than handed down.
+        </p>
+        <div className="row" style={{ marginTop: 'var(--of-space-6)' }}>
+          <button
+            type="button"
+            className="of-btn of-btn--primary of-btn--md"
+            onClick={() => onNavigate('framework')}
+          >
+            Build your framework
+            <ArrowRight size={16} strokeWidth={1.75} />
+          </button>
+          <button
+            type="button"
+            className="of-btn of-btn--secondary of-btn--md"
+            onClick={() => onNavigate('matrix')}
+          >
+            See the matrix
+          </button>
+        </div>
+      </section>
+
+      <section className="stack stack--tight">
+        <h3 className="section-title">The two axes</h3>
+        <div className="grid-2">
+          <article className="of-card">
+            <h3>Skills &amp; capabilities — A, B, C</h3>
+            <div className="stack stack--tight" style={{ marginTop: 'var(--of-space-3)' }}>
+              {LETTERS.map((letter) => (
+                <p key={letter} className="muted">
+                  <strong className="mono">{letter}</strong> · {SKILL_AXIS[letter].title} —{' '}
+                  {SKILL_AXIS[letter].blurb}
+                </p>
+              ))}
+            </div>
+            <p className="text-xs subtle" style={{ marginTop: 'var(--of-space-3)' }}>
+              Years of experience are a hint, never the test. What counts is the complexity of the
+              work someone can carry.
+            </p>
+          </article>
+          <article className="of-card">
+            <h3>Leadership — 1, 2, 3</h3>
+            <div className="stack stack--tight" style={{ marginTop: 'var(--of-space-3)' }}>
+              {([1, 2, 3] as LeadershipLevel[]).map((level) => (
+                <p key={level} className="muted">
+                  <strong className="mono">{level}</strong> · {LEADERSHIP_AXIS[level].title} —{' '}
+                  {LEADERSHIP_AXIS[level].blurb}
+                </p>
+              ))}
+            </div>
+            <p className="text-xs subtle" style={{ marginTop: 'var(--of-space-3)' }}>
+              Leadership here is scope of responsibility, not headcount. A principal engineer with
+              no reports can sit at 3.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section className="stack stack--tight">
+        <h3 className="section-title">Nine cells, grouped into bands</h3>
+        <div className="mini-matrix">
+          {LEAD_ROWS.map((lead) =>
+            LETTERS.map((letter) => {
+              const grade = `${lead}${letter}` as Grade;
+              const band = bandFor(state, grade);
+              return (
+                <div key={grade} className="mini-cell">
+                  <span className="mini-cell__grade">{grade}</span>
+                  <span className="mini-cell__pay">
+                    {band ? formatMoney(band.amount, state.currency) : '—'}
+                  </span>
+                </div>
+              );
+            }),
+          )}
+        </div>
+        <p className="muted">
+          Different routes reach the same band on purpose: a deep specialist at 1C is paid like a
+          team lead at 2B. That is the whole argument — you should not have to take on people
+          management to be paid for mastery.
+        </p>
+      </section>
+
+      <section className="stack stack--tight">
+        <h3 className="section-title">How it runs</h3>
+        <div className="steps">
+          {STEPS.map((step, index) => (
+            <article key={step.title} className="of-card step">
+              <span className="step__num mono">{String(index + 1).padStart(2, '0')}</span>
+              <h3>{step.title}</h3>
+              <p className="muted" style={{ marginTop: 'var(--of-space-2)' }}>
+                {step.body}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="grid-2">
+        <article className="of-card">
+          <h3>Money, in your currency</h3>
+          <p className="muted" style={{ marginTop: 'var(--of-space-2)' }}>
+            Nothing here assumes euros, pounds or dollars. Set whatever unit your organisation pays
+            in — or clear it and show bare numbers. The seeded figures come from the original
+            article and are meant to be replaced with your own market data.
+          </p>
+          <div style={{ marginTop: 'var(--of-space-4)' }}>
+            <CurrencyField value={state.currency} onChange={actions.setCurrency} />
+          </div>
+          <p className="text-xs subtle" style={{ marginTop: 'var(--of-space-3)' }}>
+            Preview: {formatMoney(90000, state.currency)}
+          </p>
+        </article>
+
+        <article className="of-card">
+          <h3>Bring your own framework</h3>
+          <p className="muted" style={{ marginTop: 'var(--of-space-2)' }}>
+            If you would rather write your tracks in a file than click through the editor, start
+            from the template. It has the full structure, one worked track, and notes on every
+            field. Fill it in, then use Import in the header.
+          </p>
+          <div className="row" style={{ marginTop: 'var(--of-space-4)' }}>
+            <button
+              type="button"
+              className="of-btn of-btn--secondary of-btn--md"
+              onClick={() => downloadJson(buildTemplate(), 'career-framework-template.json')}
+            >
+              <FileJson size={16} strokeWidth={1.75} />
+              Download template
+            </button>
+          </div>
+          <pre className="code" aria-label="Import file shape">{`{
+  "currency": "€",
+  "tracks": [
+    { "name": "UX Design", "summary": "…",
+      "capabilities": [
+        { "name": "Interaction design",
+          "levels": { "1": "A…", "2": "B…", "3": "C…" } }
+      ] }
+  ],
+  "leadership": [
+    { "name": "Scope of responsibility",
+      "levels": { "1": "…", "2": "…", "3": "…" } }
+  ],
+  "bands": [ { "label": "Band 1", "grades": ["1A"], "amount": 50000 } ],
+  "people": [],
+  "assessments": []
+}`}</pre>
+        </article>
+      </section>
+
+      <section className="grid-2">
+        <article className="of-card">
+          <h3>Where this comes from</h3>
+          <p className="muted" style={{ marginTop: 'var(--of-space-2)' }}>
+            The method is not ours. It is the remuneration diamond written up by {SOURCE.publisher},
+            who describe how flat organisations set pay without a hierarchy to hang it on. This app
+            is an implementation of that idea — read the original before you roll it out.
+          </p>
+          <p style={{ marginTop: 'var(--of-space-4)' }}>
+            <a className="of-btn of-btn--ghost of-btn--sm" href={SOURCE.url} target="_blank" rel="noreferrer">
+              {SOURCE.title}
+              <ExternalLink size={14} strokeWidth={1.75} />
+            </a>
+          </p>
+        </article>
+
+        <article className="of-card of-card--brand-elevated">
+          <p className="of-card__kicker">Contribute</p>
+          <h3>Send your track back</h3>
+          <div className="of-card__rule" />
+          <p>
+            The seeded tracks are a starting point, not a standard. If you write descriptors that
+            work — for research, data, ops, support, anything we have not covered — export the JSON
+            and share it back so the next team starts further along than you did.
+          </p>
+          {REPO_URL ? (
+            <p style={{ marginTop: 'var(--of-space-4)' }}>
+              <a href={REPO_URL} target="_blank" rel="noreferrer">
+                Open the repository
+              </a>
+            </p>
+          ) : null}
+        </article>
+      </section>
+
+      <section className="of-card">
+        <h3>Two things to be honest about</h3>
+        <div className="stack stack--tight" style={{ marginTop: 'var(--of-space-3)' }}>
+          <p className="muted">
+            <strong>Two places your work can live.</strong> The local workspace keeps everything in
+            this browser — private, and gone if you clear your browser data. A team workspace stores
+            the framework and every score on the server so colleagues can score each other, and
+            everyone in the team can see who scored whom.
+          </p>
+          <p className="muted">
+            <strong>A grade is the start of a conversation.</strong> Averaging peer opinion produces
+            a tidy number from an untidy judgement. Where peers disagree, or an average lands on the
+            line between two levels, the app says so rather than hiding it.
+          </p>
+        </div>
+        <div className="row" style={{ marginTop: 'var(--of-space-4)' }}>
+          <button
+            type="button"
+            className="of-btn of-btn--primary of-btn--md"
+            onClick={() => onNavigate('people')}
+          >
+            Add the first person
+            <ArrowRight size={16} strokeWidth={1.75} />
+          </button>
+          {signInEnabled && !signedIn ? (
+            <button
+              type="button"
+              className="of-btn of-btn--secondary of-btn--md"
+              onClick={() => onNavigate('team')}
+            >
+              Work with a team instead
+            </button>
+          ) : null}
+        </div>
+      </section>
+    </div>
+  );
+}

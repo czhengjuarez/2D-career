@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="A two-axis career and remuneration framework: skills &amp; capabilities × leadership." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Career Framework — Skills × Leadership</title>
+  </head>
+  <body>
+    <script>
+      // Set the theme before first paint so a dark-mode user never sees a white flash.
+      (function () {
+        try {
+          var t = localStorage.getItem('of-theme');
+          if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {}
+      })();
+    </script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
