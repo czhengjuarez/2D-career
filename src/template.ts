@@ -4,7 +4,9 @@ import type { AppState } from './types';
 /** Where this method comes from — credited in the app and worth reading in full. */
 export const SOURCE = {
   title: 'A Remuneration Method For Flat Organizations',
+  author: 'Joost Minnaar',
   publisher: 'Corporate Rebels',
+  year: '2022',
   url: 'https://www.corporate-rebels.com/blog/remuneration-method-for-flat-organizations',
 };
 

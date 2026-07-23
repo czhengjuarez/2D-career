@@ -47,10 +47,17 @@ export function HomeView({
           Pay follows the work someone does, not the title they were given.
         </h2>
         <p className="hero__lede">
-          Most career ladders bundle craft and leadership into one line, so the only way up is to
-          manage people. This one keeps them apart. Skills &amp; capabilities run A → C. Leadership
-          runs 1 → 3. Nine cells, a handful of pay bands, and a grade that is arrived at by the
-          people you work with rather than handed down.
+          Roles have gone fluid. Most people now do more than the discipline printed on their
+          title ever described, and once that happens, a single-track ladder cannot tell you
+          whether the work is good. In 2022, Joost Minnaar of Corporate Rebels sketched a way
+          for flat organisations to evaluate each other without a manager in the middle — a
+          two-axis method, no hierarchy required. This is that method, built into a worksheet.
+        </p>
+        <p className="hero__lede">
+          Skills &amp; capabilities run A → C. Leadership runs 1 → 3. Nine cells, a handful of
+          pay bands, and a grade that peers arrive at together, not one handed down. It is a
+          little radical: everyone on the team can see everyone else's scores. Career
+          evaluation should not be a secret — it should be a conversation.
         </p>
         <div className="row" style={{ marginTop: 'var(--of-space-6)' }}>
           <button
@@ -204,9 +211,10 @@ export function HomeView({
         <article className="of-card">
           <h3>Where this comes from</h3>
           <p className="muted" style={{ marginTop: 'var(--of-space-2)' }}>
-            The method is not ours. It is the remuneration diamond written up by {SOURCE.publisher},
-            who describe how flat organisations set pay without a hierarchy to hang it on. This app
-            is an implementation of that idea — read the original before you roll it out.
+            The method is not ours. {SOURCE.author} of {SOURCE.publisher} wrote it up in{' '}
+            {SOURCE.year} as a way for flat organisations to set pay without a hierarchy to hang
+            it on. This app is an implementation of that idea — read the original before you
+            roll it out.
           </p>
           <p style={{ marginTop: 'var(--of-space-4)' }}>
             <a className="of-btn of-btn--ghost of-btn--sm" href={SOURCE.url} target="_blank" rel="noreferrer">
