@@ -413,33 +413,41 @@ button.workspace:focus-visible {
 
 .diamond-scroll {
   overflow-x: auto;
-  padding: var(--of-space-2) 0;
+  padding: var(--of-space-4) 0;
+  display: flex;
+  /* Center when it fits; when it doesn't, "safe" keeps the scrollable start reachable
+     instead of centering into clipped, unscrollable-to content on narrow screens. */
+  justify-content: center;
+  justify-content: safe center;
 }
 
+/* Nodes and lines share one absolutely-positioned coordinate space, sized in JS
+   (RemunerationDiamond.tsx) from the same grid math that places each node. */
 .diamond {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--of-space-3);
-  width: max-content;
-  min-width: 100%;
+  position: relative;
+  flex: none;
 }
 
-.diamond__row {
-  display: flex;
-  gap: var(--of-space-4);
+.diamond__lines {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+}
+
+.diamond__lines line {
+  stroke: var(--of-fg-brand);
+  stroke-width: 2;
+  opacity: 0.7;
 }
 
 .diamond__shape {
-  width: 108px;
-  height: 108px;
-  flex: none;
-  transform: rotate(45deg);
+  position: absolute;
+  transform: translate(-50%, -50%) rotate(45deg);
   border-radius: var(--of-radius-md);
   background: var(--of-gradient-brand);
   display: grid;
   place-items: center;
-  box-shadow: var(--of-shadow-sm);
+  box-shadow: var(--of-shadow-md);
 }
 
 .diamond__content {
@@ -868,19 +876,6 @@ table.data td {
   }
   .hero__title {
     font-size: var(--of-text-2xl);
-  }
-  .diamond__shape {
-    width: 78px;
-    height: 78px;
-  }
-  .diamond__grade {
-    font-size: var(--of-text-sm);
-  }
-  .diamond__pay {
-    font-size: 10px;
-  }
-  .diamond__row {
-    gap: var(--of-space-2);
   }
 }
 

@@ -1,33 +1,10 @@
 import { ArrowRight, ExternalLink, FileJson } from 'lucide-react';
-import type { AppState, Grade, LeadershipLevel } from '../types';
+import type { AppState, LeadershipLevel } from '../types';
 import type { Actions } from '../store';
-import { LEADERSHIP_AXIS, LETTERS, SKILL_AXIS, bandFor, formatMoney } from '../scoring';
+import { LEADERSHIP_AXIS, LETTERS, SKILL_AXIS, formatMoney } from '../scoring';
 import { REPO_URL, SOURCE, buildTemplate, downloadJson } from '../template';
 import { CurrencyField } from '../components/ui';
-
-/**
- * The same nine grades, laid out as a diamond rather than a grid — skill and leadership
- * each read as a diagonal, so cells that share a pay band line up visually. This is our own
- * rendering of that arrangement (Keel tokens, no borrowed artwork); credited fully below.
- * Row membership follows directly from the grades themselves: row = 3 − skillIndex + level.
- */
-const DIAMOND_ROWS: { skill: 1 | 2 | 3; level: LeadershipLevel }[][] = [
-  [{ skill: 3, level: 1 }],
-  [
-    { skill: 2, level: 1 },
-    { skill: 3, level: 2 },
-  ],
-  [
-    { skill: 1, level: 1 },
-    { skill: 2, level: 2 },
-    { skill: 3, level: 3 },
-  ],
-  [
-    { skill: 1, level: 2 },
-    { skill: 2, level: 3 },
-  ],
-  [{ skill: 1, level: 3 }],
-];
+import { RemunerationDiamond } from '../components/RemunerationDiamond';
 
 const STEPS = [
   {
@@ -138,28 +115,7 @@ export function HomeView({
 
       <section className="stack stack--tight">
         <h3 className="section-title">Nine cells, grouped into bands</h3>
-        <div className="diamond-scroll">
-          <div className="diamond">
-            {DIAMOND_ROWS.map((row, index) => (
-              <div className="diamond__row" key={index}>
-                {row.map(({ skill, level }) => {
-                  const grade = `${level}${LETTERS[skill - 1]}` as Grade;
-                  const band = bandFor(state, grade);
-                  return (
-                    <div className="diamond__shape" key={grade}>
-                      <div className="diamond__content">
-                        <span className="diamond__grade">{grade}</span>
-                        <span className="diamond__pay">
-                          {band ? formatMoney(band.amount, state.currency) : '—'}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
-          </div>
-        </div>
+        <RemunerationDiamond state={state} />
         <p className="text-xs subtle">
           Laid out this way on purpose: it is the same diamond arrangement from{' '}
           {SOURCE.author}'s original illustration, redrawn here rather than reused —{' '}
