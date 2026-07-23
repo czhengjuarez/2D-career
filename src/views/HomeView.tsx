@@ -5,7 +5,29 @@ import { LEADERSHIP_AXIS, LETTERS, SKILL_AXIS, bandFor, formatMoney } from '../s
 import { REPO_URL, SOURCE, buildTemplate, downloadJson } from '../template';
 import { CurrencyField } from '../components/ui';
 
-const LEAD_ROWS: LeadershipLevel[] = [3, 2, 1];
+/**
+ * The same nine grades, laid out as a diamond rather than a grid — skill and leadership
+ * each read as a diagonal, so cells that share a pay band line up visually. This is our own
+ * rendering of that arrangement (Keel tokens, no borrowed artwork); credited fully below.
+ * Row membership follows directly from the grades themselves: row = 3 − skillIndex + level.
+ */
+const DIAMOND_ROWS: { skill: 1 | 2 | 3; level: LeadershipLevel }[][] = [
+  [{ skill: 3, level: 1 }],
+  [
+    { skill: 2, level: 1 },
+    { skill: 3, level: 2 },
+  ],
+  [
+    { skill: 1, level: 1 },
+    { skill: 2, level: 2 },
+    { skill: 3, level: 3 },
+  ],
+  [
+    { skill: 1, level: 2 },
+    { skill: 2, level: 3 },
+  ],
+  [{ skill: 1, level: 3 }],
+];
 
 const STEPS = [
   {
@@ -116,22 +138,37 @@ export function HomeView({
 
       <section className="stack stack--tight">
         <h3 className="section-title">Nine cells, grouped into bands</h3>
-        <div className="mini-matrix">
-          {LEAD_ROWS.map((lead) =>
-            LETTERS.map((letter) => {
-              const grade = `${lead}${letter}` as Grade;
-              const band = bandFor(state, grade);
-              return (
-                <div key={grade} className="mini-cell">
-                  <span className="mini-cell__grade">{grade}</span>
-                  <span className="mini-cell__pay">
-                    {band ? formatMoney(band.amount, state.currency) : '—'}
-                  </span>
-                </div>
-              );
-            }),
-          )}
+        <div className="diamond-scroll">
+          <div className="diamond">
+            {DIAMOND_ROWS.map((row, index) => (
+              <div className="diamond__row" key={index}>
+                {row.map(({ skill, level }) => {
+                  const grade = `${level}${LETTERS[skill - 1]}` as Grade;
+                  const band = bandFor(state, grade);
+                  return (
+                    <div className="diamond__shape" key={grade}>
+                      <div className="diamond__content">
+                        <span className="diamond__grade">{grade}</span>
+                        <span className="diamond__pay">
+                          {band ? formatMoney(band.amount, state.currency) : '—'}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
         </div>
+        <p className="text-xs subtle">
+          Laid out this way on purpose: it is the same diamond arrangement from{' '}
+          {SOURCE.author}'s original illustration, redrawn here rather than reused —{' '}
+          <a href={SOURCE.url} target="_blank" rel="noreferrer">
+            see the original
+            <ExternalLink size={12} strokeWidth={1.75} style={{ verticalAlign: '-1px', marginLeft: 2 }} />
+          </a>
+          .
+        </p>
         <p className="muted">
           Different routes reach the same band on purpose: a deep specialist at 1C is paid like a
           team lead at 2B. That is the whole argument — you should not have to take on people
