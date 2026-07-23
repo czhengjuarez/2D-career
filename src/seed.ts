@@ -189,11 +189,11 @@ export function seedState(): AppState {
     people: [],
     assessments: [],
     bands: [
-      { id: uid('bnd'), label: 'Band 1', grades: ['1A'], amount: 50000 },
-      { id: uid('bnd'), label: 'Band 2', grades: ['1B', '2A'], amount: 65000 },
-      { id: uid('bnd'), label: 'Band 3', grades: ['1C', '2B', '3A'], amount: 90000 },
-      { id: uid('bnd'), label: 'Band 4', grades: ['2C', '3B'], amount: 120000 },
-      { id: uid('bnd'), label: 'Band 5', grades: ['3C'], amount: 200000 },
+      { id: uid('bnd'), label: 'Band 1', grades: ['1A'], amount: 95000 },
+      { id: uid('bnd'), label: 'Band 2', grades: ['1B', '2A'], amount: 110000 },
+      { id: uid('bnd'), label: 'Band 3', grades: ['1C', '2B', '3A'], amount: 140000 },
+      { id: uid('bnd'), label: 'Band 4', grades: ['2C', '3B'], amount: 190000 },
+      { id: uid('bnd'), label: 'Band 5', grades: ['3C'], amount: 220000 },
     ],
   };
 }

@@ -117,8 +117,8 @@ export function HomeView({
         <h3 className="section-title">Nine cells, grouped into bands</h3>
         <RemunerationDiamond state={state} />
         <p className="text-xs subtle">
-          Laid out this way on purpose: it is the same diamond arrangement from{' '}
-          {SOURCE.author}'s original illustration, redrawn here rather than reused —{' '}
+          It is the same diamond arrangement from {SOURCE.author}'s original illustration,
+          redrawn here rather than reused —{' '}
           <a href={SOURCE.url} target="_blank" rel="noreferrer">
             see the original
             <ExternalLink size={12} strokeWidth={1.75} style={{ verticalAlign: '-1px', marginLeft: 2 }} />
