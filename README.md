@@ -13,7 +13,8 @@ Two dimensions, three levels each, nine grades:
 | **1** self | 1A | 1B | 1C |
 
 Peers score the people they actually work with. The peer scores are averaged into one
-grade, and that grade is *advice* to whoever owns pay — never an automatic decision.
+grade, and that grade is *advice* — the team sets its own pay bands together, out loud, from
+there. The number never decides on its own.
 
 ## What you can do
 

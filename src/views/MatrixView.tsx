@@ -57,7 +57,7 @@ export function MatrixView({ state, actions }: { state: AppState; actions: Actio
       >
         Two axes, three levels each. Skills &amp; capabilities run A → C across the bottom;
         leadership runs 1 → 3 up the side. Nine cells, grouped into pay bands — a grade is peer
-        advice, not a decision. Pay figures are editable.
+        advice, not a decision. Pay figures are editable; decide them together as a team.
       </PageHead>
 
       <div className="matrix-wrap">
@@ -141,11 +141,11 @@ export function MatrixView({ state, actions }: { state: AppState; actions: Actio
 
       <article className="of-card of-card--brand-elevated">
         <p className="of-card__kicker">How it runs</p>
-        <h3>Peers score, the commission decides</h3>
+        <h3>Peers score, the team decides</h3>
         <p style={{ marginTop: 'var(--of-space-3)' }}>
-          Everyone rates the colleagues they actually work with on both axes. Those peer scores are
-          averaged into one grade, and that grade is <em>advice</em> to whoever owns pay — a
-          remuneration commission or leadership — who convert it into a package.
+          Everyone rates the colleagues they actually work with on both axes. Those peer scores
+          are averaged into one grade, and that grade is <em>advice</em> — the starting point for
+          the team to set the band together, out loud, rather than a verdict handed down.
         </p>
       </article>
     </div>

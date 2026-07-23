@@ -18,8 +18,8 @@ Each grade maps to a pay band; several grades share a band on purpose, so a deep
 
 Peers score the colleagues they work with. Each assessment averages its own items into one
 skill number and one leadership number; those are averaged across peers, then rounded to a
-grade. Self-assessments are recorded and displayed but never counted. The result is advice
-to whoever owns pay, never an automatic decision.
+grade. Self-assessments are recorded and displayed but never counted. The result is advice —
+the team sets its own pay bands together from there, never an automatic decision.
 
 ## Two workspaces
 

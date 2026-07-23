@@ -22,7 +22,7 @@ const STEPS = [
   },
   {
     title: 'The average becomes advice',
-    body: 'Peer scores are averaged into a single grade, and that grade goes to whoever owns pay — a remuneration commission, or leadership — as advice. The number never decides on its own.',
+    body: 'Peer scores are averaged into a single grade — advice, not a verdict. The team takes it from there and sets the band together, out loud, rather than leaving it to one person to decide alone.',
   },
 ];
 
@@ -136,6 +136,11 @@ export function HomeView({
           Different routes reach the same band on purpose: a deep specialist at 1C is paid like a
           team lead at 2B. That is the whole argument — you should not have to take on people
           management to be paid for mastery.
+        </p>
+        <p className="muted">
+          The amounts are not set by us, and they are not handed down by one person either — the
+          team decides its own bands, together, out loud. That is the radical part. This
+          worksheet is built for organisations willing to work that way.
         </p>
       </section>
 

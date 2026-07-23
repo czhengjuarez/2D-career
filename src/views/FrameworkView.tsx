@@ -211,6 +211,10 @@ export function FrameworkView({ state, actions }: { state: AppState; actions: Ac
 
       <section className="stack stack--tight">
         <h3 className="section-title">Pay bands</h3>
+        <p className="muted text-xs">
+          Decide these together, out loud — a change here changes what everyone in the band is
+          paid the moment it saves.
+        </p>
         <div className="of-card">
           <div className="row" style={{ marginBottom: 'var(--of-space-4)' }}>
             <CurrencyField value={state.currency} onChange={actions.setCurrency} />
