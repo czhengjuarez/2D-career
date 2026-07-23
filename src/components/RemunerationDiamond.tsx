@@ -2,9 +2,12 @@ import type { AppState, Grade, LeadershipLevel } from '../types';
 import { LETTERS, bandFor, formatMoney } from '../scoring';
 
 /** Visual tuning — adjust these, not the layout math below, to change the shape's size. */
-const NODE_SIZE = 126;
-const ROW_GAP = 172;
-const COL_GAP = 234;
+/** COL_GAP is deliberately 2× ROW_GAP — with 3 columns but 5 rows, that ratio is what
+ *  makes the overall shape read as a square rather than a tall diamond (matches the
+ *  reference proportions, where the same 2:1 relationship holds). */
+const NODE_SIZE = 84;
+const ROW_GAP = 95;
+const COL_GAP = 190;
 const NODE_DIAGONAL = NODE_SIZE * Math.SQRT2;
 
 interface DiamondNode {
