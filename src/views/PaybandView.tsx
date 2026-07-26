@@ -39,17 +39,21 @@ export function PaybandView({ state, actions }: { state: AppState; actions: Acti
       </article>
 
       <article className="of-card">
-        <h3>Currency</h3>
-        <p className="muted" style={{ marginTop: 'var(--of-space-2)' }}>
-          Nothing here assumes euros, pounds or dollars. Set whatever unit the organisation
-          pays in, or clear it for bare numbers.
-        </p>
-        <div style={{ marginTop: 'var(--of-space-4)' }}>
-          <CurrencyField value={state.currency} onChange={actions.setCurrency} />
+        <div className="row row--top" style={{ justifyContent: 'space-between' }}>
+          <div style={{ flex: 1, minWidth: 220 }}>
+            <h3>Currency</h3>
+            <p className="muted" style={{ marginTop: 'var(--of-space-2)' }}>
+              Nothing here assumes euros, pounds or dollars. Set whatever unit the
+              organisation pays in, or clear it for bare numbers.
+            </p>
+            <p className="text-xs subtle" style={{ marginTop: 'var(--of-space-2)' }}>
+              Preview: {formatMoney(90000, state.currency)}
+            </p>
+          </div>
+          <div style={{ minWidth: 280 }}>
+            <CurrencyField value={state.currency} onChange={actions.setCurrency} label="Symbol or code" />
+          </div>
         </div>
-        <p className="text-xs subtle" style={{ marginTop: 'var(--of-space-3)' }}>
-          Preview: {formatMoney(90000, state.currency)}
-        </p>
       </article>
 
       <p className="muted">
