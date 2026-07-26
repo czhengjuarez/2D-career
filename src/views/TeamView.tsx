@@ -455,8 +455,12 @@ export function TeamView({
                 run(async () => {
                   const payload = await api.createTeam(name.trim());
                   setName('');
+                  // Stay on the Team tab — a fresh team has a join code, an owner-only
+                  // visibility setting and a name worth glancing at before going anywhere.
+                  // The team card renders near the top, well above where this button sits,
+                  // so scroll there rather than leave it looking like nothing happened.
                   workspace.select(payload.team.id);
-                  onLoaded();
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
                 })
               }
             >
