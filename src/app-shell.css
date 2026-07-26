@@ -220,6 +220,16 @@ main {
   color: var(--of-fg-subtle);
 }
 
+.pull-quote {
+  margin: 0;
+  border-left: 3px solid var(--of-bg-brand);
+  padding-left: var(--of-space-4);
+  font-family: var(--of-font-display);
+  font-size: var(--of-text-lg);
+  line-height: 1.5;
+  color: var(--of-fg-default);
+}
+
 .muted {
   color: var(--of-fg-muted);
 }

@@ -10,15 +10,39 @@ const LEAD_ROWS: LeadershipLevel[] = [3, 2, 1];
  * each of the nine grades is worth; it never reads a person, a score, or a track filter —
  * that data lives in Assess/People/Framework instead. See the "Two separate things" card
  * below for the explanation shown to users.
+ *
+ * A second, related idea lives here too: descriptors (what "advanced" means for a given
+ * capability) are legitimately team-specific, but pay and the leadership ladder are meant to
+ * hold organisation-wide. Today that's a framing, not an enforced constraint — bands are
+ * still stored per team, so nothing stops two teams under one org from setting a 2B
+ * differently. Worth knowing if "organisational" needs to become literally true later.
  */
 export function PaybandView({ state, actions }: { state: AppState; actions: Actions }) {
   return (
     <div className="stack">
-      <PageHead title="Design Payband">
+      <PageHead title="Org Payband">
         Nine grades, one pay figure each. Skill runs A → C across the bottom; leadership runs
         1 → 3 up the side. This is where the organisation agrees what each grade is worth — on
         its own, independent of anyone's actual evaluation.
       </PageHead>
+
+      <article className="of-card">
+        <p className="section-title">Why this is organisational, not team-specific</p>
+        <blockquote className="pull-quote" style={{ marginTop: 'var(--of-space-3)' }}>
+          The descriptors are team-specific. The principles are organisational. Teams should
+          have the freedom to define what great UX Design or Engineering looks like in their
+          context, but organisations still owe people consistency in how leadership, scope,
+          and compensation are interpreted. Otherwise, flexibility simply becomes another word
+          for unfairness.
+        </blockquote>
+        <p className="muted" style={{ marginTop: 'var(--of-space-4)' }}>
+          In practice: what "advanced" looks like for a given capability is written per track,
+          on <strong>Framework</strong> — that's the part every team should be free to define
+          for their own context. What a grade <em>pays</em>, and what leadership scope 1, 2 and
+          3 mean, are set here, once, for everyone. A 2B should mean the same thing and pay the
+          same amount whichever team someone is on.
+        </p>
+      </article>
 
       <article className="of-card of-card--brand-elevated">
         <p className="of-card__kicker">Two separate things</p>

@@ -27,7 +27,7 @@ import { TeamView } from './views/TeamView';
 type TabId = 'home' | 'payband' | 'framework' | 'assess' | 'people' | 'team';
 
 const TABS: { id: Exclude<TabId, 'home'>; label: string; icon: typeof Coins }[] = [
-  { id: 'payband', label: 'Payband', icon: Coins },
+  { id: 'payband', label: 'Org Payband', icon: Coins },
   { id: 'framework', label: 'Framework', icon: Wrench },
   { id: 'assess', label: 'Assess', icon: ListChecks },
   { id: 'people', label: 'People', icon: Users },

@@ -19,8 +19,9 @@ there. The number never decides on its own.
 ## What you can do
 
 - **Home** — what the method is, how it runs, where it comes from, and the import template.
-- **Payband** — "Design Payband": the nine grades and what each one pays. Deliberately
-  independent of team evaluation — see [Two separate things](#two-separate-things) below.
+- **Org Payband** — the nine grades and what each one pays, agreed once for the whole
+  organisation. Deliberately independent of team evaluation — see
+  [Two separate things](#two-separate-things) below.
 - **Framework** — add your own tracks, capabilities and leadership dimensions, and write the
   A/B/C and 1/2/3 descriptors for each. Four example tracks ship as a starting point:
   UX Design, Brand Design, UX Engineering, Engineering. Delete or rewrite any of them.
@@ -31,19 +32,35 @@ there. The number never decides on its own.
 
 ### Two separate things
 
+> The descriptors are team-specific. The principles are organisational. Teams should have the
+> freedom to define what great UX Design or Engineering looks like in their context, but
+> organisations still owe people consistency in how leadership, scope, and compensation are
+> interpreted. Otherwise, flexibility simply becomes another word for unfairness.
+
 Payband design and team evaluation are two different concerns, kept deliberately apart:
 
-- **Payband** only ever edits nine numbers — what each grade is worth. It never reads a
-  person, a score, or a track; there is no "who's in this cell" view any more.
-- **Assess / People / Framework** run the evaluation: peer scoring, grade computation, and
-  who's currently at what level.
+- **Org Payband** only ever edits nine numbers — what each grade is worth, the same for
+  everyone. It never reads a person, a score, or a track; there is no "who's in this cell"
+  view any more.
+- **Framework** is where the *descriptors* live — what "advanced" looks like for a given
+  capability — and that's legitimately team-specific: different tracks, different contexts.
+- **Assess / People** run the evaluation itself: peer scoring, grade computation, and who's
+  currently at what level.
 
 The dependency runs one way only. People's "Band" column calls `bandFor(state, grade)` to
 show what a person's computed grade is *currently* worth — evaluation reads payband data for
-display. Payband has no equivalent lookup back; editing a pay figure never touches anyone's
-individual assessment, and the grade itself is computed the same way whether or not any pay
-figures exist. Grade *computation* (`scorePerson` in `src/scoring.ts`) never references
-`state.bands` at all.
+display. Org Payband has no equivalent lookup back; editing a pay figure never touches
+anyone's individual assessment, and the grade itself is computed the same way whether or not
+any pay figures exist. Grade *computation* (`scorePerson` in `src/scoring.ts`) never
+references `state.bands` at all.
+
+**Known gap between the framing and the implementation:** "organisational" is a stance the
+copy takes, not yet an enforced constraint. `bands` is still stored per team
+(`Team.state.bands` in `worker/storage.ts`), so nothing today stops two teams under the same
+organisation from setting a 2B differently — there is no "Organisation" entity above `Team`
+that would let several teams share one payband. Making the principle literally true would
+mean teams within an org sharing one payband definition while keeping their own Framework
+descriptors — a real, separate piece of work, not implemented here.
 
 ## Two workspaces
 

@@ -21,11 +21,16 @@ skill number and one leadership number; those are averaged across peers, then ro
 grade. Self-assessments are recorded and displayed but never counted. The result is advice —
 the team sets its own pay bands together from there, never an automatic decision.
 
-Payband design and team evaluation are separate concerns in the UI: a "Design Payband" screen
-edits only `bands[]` (nine numbers, one per grade) and never reads people, scores, or tracks.
-Evaluation happens on Assess/People instead, which look up a computed grade's pay one-way —
-editing a pay figure never touches anyone's assessment, and grades compute identically
-whether or not any bands exist.
+Payband design and team evaluation are separate concerns in the UI: an "Org Payband" screen
+edits only `bands[]` (nine numbers, one per grade, meant to hold the same across the whole
+org) and never reads people, scores, or tracks. Evaluation happens on Assess/People instead,
+which look up a computed grade's pay one-way — editing a pay figure never touches anyone's
+assessment, and grades compute identically whether or not any bands exist.
+
+Descriptors (what "advanced" means for a capability) are the team-specific part, written per
+track on Framework. Pay and the leadership ladder are meant to be organisation-wide. Note:
+`bands` is currently stored per Team, not per organisation — nothing yet stops two teams
+under one org from diverging. That's a stated intent in the product, not an enforced rule.
 
 ## Two workspaces
 

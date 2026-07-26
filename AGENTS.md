@@ -101,12 +101,17 @@ for agents pointed at the deployment. **Keep it in step with any API change.**
 
 ## Rules that matter
 
-- **Payband design and team evaluation are separate concerns — don't recouple them.**
-  `PaybandView.tsx` edits `state.bands` only; it must never take a `people`/`summaries` prop
-  or filter by track/person again. `bandFor(state, grade)` is called one-way, from evaluation
-  views (`PeopleView.tsx`, `RemunerationDiamond.tsx`) looking up what a grade currently pays —
-  never the reverse. If a change makes Payband read `state.people` or `state.assessments`,
-  that's the coupling the rename was meant to remove.
+- **Org Payband and team evaluation are separate concerns — don't recouple them.**
+  `PaybandView.tsx` (tab label "Org Payband") edits `state.bands` only; it must never take a
+  `people`/`summaries` prop or filter by track/person again. `bandFor(state, grade)` is called
+  one-way, from evaluation views (`PeopleView.tsx`, `RemunerationDiamond.tsx`) looking up what
+  a grade currently pays — never the reverse. If a change makes Payband read `state.people` or
+  `state.assessments`, that's the coupling the rename was meant to remove.
+- **"Organisational" is the stated intent, not yet the implementation.** The product framing
+  (see README's "Two separate things") is that descriptors are team-specific but pay and the
+  leadership ladder should hold org-wide. Today `bands` still lives in `Team.state`, per team —
+  there is no `Organisation` entity above `Team` enforcing one shared payband. Don't describe
+  bands as org-wide in new copy without checking whether that gap has been closed.
 - **Re-check every permission in the Worker.** Hiding a control in the UI is a courtesy, not
   a control. Role helpers are `roleOf` / `isAdmin` / `isMember` in `worker/storage.ts`.
 - **Never trust `rater` from the request body.** The server sets `rater` and `raterId` from

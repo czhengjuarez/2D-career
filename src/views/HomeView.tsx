@@ -72,7 +72,7 @@ export function HomeView({
             className="of-btn of-btn--secondary of-btn--md"
             onClick={() => onNavigate('payband')}
           >
-            Design the payband
+            See the org payband
           </button>
         </div>
       </section>
