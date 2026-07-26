@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { FileJson, Plus } from 'lucide-react';
 import type { Actions } from '../store';
 import type { AppState, LeadershipLevel, LevelDescriptors } from '../types';
-import { LEADERSHIP_AXIS, LETTERS, SKILL_AXIS, formatMoney } from '../scoring';
-import { CurrencyField, DeleteButton, PageHead } from '../components/ui';
+import { LEADERSHIP_AXIS, LETTERS, SKILL_AXIS } from '../scoring';
+import { buildTemplate, downloadJson } from '../template';
+import { DeleteButton, PageHead } from '../components/ui';
 
 const LEVELS: (1 | 2 | 3)[] = [1, 2, 3];
 
@@ -93,6 +94,42 @@ export function FrameworkView({ state, actions }: { state: AppState; actions: Ac
         shared across the whole organisation — the same ladder for a designer and an engineer.
         Everything here is yours to rewrite; the seeded examples are only a starting point.
       </PageHead>
+
+      <article className="of-card">
+        <h3>Bring your own framework</h3>
+        <p className="muted" style={{ marginTop: 'var(--of-space-2)' }}>
+          If you would rather write your tracks in a file than click through the editor below,
+          start from the template. It has the full structure, one worked track, and notes on
+          every field. Fill it in, then use Import in the header.
+        </p>
+        <div className="row" style={{ marginTop: 'var(--of-space-4)' }}>
+          <button
+            type="button"
+            className="of-btn of-btn--secondary of-btn--md"
+            onClick={() => downloadJson(buildTemplate(), 'career-framework-template.json')}
+          >
+            <FileJson size={16} strokeWidth={1.75} />
+            Download template
+          </button>
+        </div>
+        <pre className="code" aria-label="Import file shape">{`{
+  "currency": "€",
+  "tracks": [
+    { "name": "UX Design", "summary": "…",
+      "capabilities": [
+        { "name": "Interaction design",
+          "levels": { "1": "A…", "2": "B…", "3": "C…" } }
+      ] }
+  ],
+  "leadership": [
+    { "name": "Scope of responsibility",
+      "levels": { "1": "…", "2": "…", "3": "…" } }
+  ],
+  "bands": [ { "label": "Band 1", "grades": ["1A"], "amount": 50000 } ],
+  "people": [],
+  "assessments": []
+}`}</pre>
+      </article>
 
       <section className="stack stack--tight">
         <h3 className="section-title">Tracks &amp; capabilities</h3>
@@ -209,38 +246,6 @@ export function FrameworkView({ state, actions }: { state: AppState; actions: Ac
         />
       </section>
 
-      <section className="stack stack--tight">
-        <h3 className="section-title">Pay bands</h3>
-        <p className="muted text-xs">
-          Decide these together, out loud — a change here changes what everyone in the band is
-          paid the moment it saves.
-        </p>
-        <div className="of-card">
-          <div className="row" style={{ marginBottom: 'var(--of-space-4)' }}>
-            <CurrencyField value={state.currency} onChange={actions.setCurrency} />
-          </div>
-          <div className="list">
-            {state.bands.map((band) => (
-              <div key={band.id} className="list-row">
-                <div className="list-row__main">
-                  <div className="list-row__name">{band.label}</div>
-                  <div className="text-xs muted mono">{band.grades.join(' · ')}</div>
-                </div>
-                <span className="mono text-xs muted">{formatMoney(band.amount, state.currency)}</span>
-                <input
-                  className="of-input"
-                  style={{ maxWidth: 160 }}
-                  type="number"
-                  step={1000}
-                  value={band.amount}
-                  aria-label={`${band.label} amount`}
-                  onChange={(e) => actions.updateBand(band.id, Number(e.target.value) || 0)}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

@@ -18,13 +18,15 @@ there. The number never decides on its own.
 
 ## What you can do
 
-- **Home** — what the method is, how it runs, where it comes from, and the import template.
-- **Org Payband** — the nine grades and what each one pays, agreed once for the whole
-  organisation. Deliberately independent of team evaluation — see
+- **Home** — what the method is, how it runs, and where it comes from.
+- **Org Payband** — currency, the nine grades and what each one pays, agreed once for the
+  whole organisation. Deliberately independent of team evaluation — see
   [Two separate things](#two-separate-things) below.
 - **Framework** — add your own tracks, capabilities and leadership dimensions, and write the
   A/B/C and 1/2/3 descriptors for each. Four example tracks ship as a starting point:
-  UX Design, Brand Design, UX Engineering, Engineering. Delete or rewrite any of them.
+  UX Design, Brand Design, UX Engineering, Engineering. Delete or rewrite any of them. The
+  import template also lives here — download it if you'd rather write tracks in a file than
+  click through the editor.
 - **Assess** — score one person across every capability in their track plus the shared
   leadership dimensions. Self-scores are recorded and displayed but never counted.
 - **People** — averaged peer advice per person, the band it points to, the spread between

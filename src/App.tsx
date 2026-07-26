@@ -229,7 +229,6 @@ export default function App() {
           {tab === 'home' && (
             <HomeView
               state={state}
-              actions={actions}
               onNavigate={(next) => setTab(next)}
               signedIn={Boolean(session?.user)}
               signInEnabled={Boolean(session?.signInEnabled)}

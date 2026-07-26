@@ -1,9 +1,7 @@
-import { ArrowRight, ExternalLink, FileJson } from 'lucide-react';
+import { ArrowRight, ExternalLink } from 'lucide-react';
 import type { AppState, LeadershipLevel } from '../types';
-import type { Actions } from '../store';
-import { LEADERSHIP_AXIS, LETTERS, SKILL_AXIS, formatMoney } from '../scoring';
-import { REPO_URL, SOURCE, buildTemplate, downloadJson } from '../template';
-import { CurrencyField } from '../components/ui';
+import { LEADERSHIP_AXIS, LETTERS, SKILL_AXIS } from '../scoring';
+import { REPO_URL, SOURCE } from '../template';
 import { RemunerationDiamond } from '../components/RemunerationDiamond';
 
 const STEPS = [
@@ -27,13 +25,11 @@ const STEPS = [
 
 export function HomeView({
   state,
-  actions,
   onNavigate,
   signedIn,
   signInEnabled,
 }: {
   state: AppState;
-  actions: Actions;
   onNavigate: (tab: 'payband' | 'framework' | 'assess' | 'people' | 'team') => void;
   signedIn: boolean;
   signInEnabled: boolean;
@@ -116,15 +112,6 @@ export function HomeView({
       <section className="stack stack--tight">
         <h3 className="section-title">Nine cells, grouped into bands</h3>
         <RemunerationDiamond state={state} />
-        <p className="text-xs subtle">
-          It is the same diamond arrangement from {SOURCE.author}'s original illustration,
-          redrawn here rather than reused —{' '}
-          <a href={SOURCE.url} target="_blank" rel="noreferrer">
-            see the original
-            <ExternalLink size={12} strokeWidth={1.75} style={{ verticalAlign: '-1px', marginLeft: 2 }} />
-          </a>
-          .
-        </p>
         <p className="muted">
           Different routes reach the same band on purpose: a deep specialist at 1C is paid like a
           team lead at 2B. That is the whole argument — you should not have to take on people
@@ -154,65 +141,13 @@ export function HomeView({
 
       <section className="grid-2">
         <article className="of-card">
-          <h3>Money, in your currency</h3>
-          <p className="muted" style={{ marginTop: 'var(--of-space-2)' }}>
-            Nothing here assumes euros, pounds or dollars. Set whatever unit your organisation pays
-            in — or clear it and show bare numbers. The seeded figures come from the original
-            article and are meant to be replaced with your own market data.
-          </p>
-          <div style={{ marginTop: 'var(--of-space-4)' }}>
-            <CurrencyField value={state.currency} onChange={actions.setCurrency} />
-          </div>
-          <p className="text-xs subtle" style={{ marginTop: 'var(--of-space-3)' }}>
-            Preview: {formatMoney(90000, state.currency)}
-          </p>
-        </article>
-
-        <article className="of-card">
-          <h3>Bring your own framework</h3>
-          <p className="muted" style={{ marginTop: 'var(--of-space-2)' }}>
-            If you would rather write your tracks in a file than click through the editor, start
-            from the template. It has the full structure, one worked track, and notes on every
-            field. Fill it in, then use Import in the header.
-          </p>
-          <div className="row" style={{ marginTop: 'var(--of-space-4)' }}>
-            <button
-              type="button"
-              className="of-btn of-btn--secondary of-btn--md"
-              onClick={() => downloadJson(buildTemplate(), 'career-framework-template.json')}
-            >
-              <FileJson size={16} strokeWidth={1.75} />
-              Download template
-            </button>
-          </div>
-          <pre className="code" aria-label="Import file shape">{`{
-  "currency": "€",
-  "tracks": [
-    { "name": "UX Design", "summary": "…",
-      "capabilities": [
-        { "name": "Interaction design",
-          "levels": { "1": "A…", "2": "B…", "3": "C…" } }
-      ] }
-  ],
-  "leadership": [
-    { "name": "Scope of responsibility",
-      "levels": { "1": "…", "2": "…", "3": "…" } }
-  ],
-  "bands": [ { "label": "Band 1", "grades": ["1A"], "amount": 50000 } ],
-  "people": [],
-  "assessments": []
-}`}</pre>
-        </article>
-      </section>
-
-      <section className="grid-2">
-        <article className="of-card">
           <h3>Where this comes from</h3>
           <p className="muted" style={{ marginTop: 'var(--of-space-2)' }}>
             The method is not ours. {SOURCE.author} of {SOURCE.publisher} wrote it up in{' '}
             {SOURCE.year} as a way for flat organisations to set pay without a hierarchy to hang
-            it on. This app is an implementation of that idea — read the original before you
-            roll it out.
+            it on. This app is an implementation of that idea, including the diamond above —
+            redrawn here rather than reused, but the same arrangement. Read the original before
+            you roll it out.
           </p>
           <p style={{ marginTop: 'var(--of-space-4)' }}>
             <a className="of-btn of-btn--ghost of-btn--sm" href={SOURCE.url} target="_blank" rel="noreferrer">

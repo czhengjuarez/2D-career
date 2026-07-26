@@ -1,7 +1,7 @@
 import type { Actions } from '../store';
 import type { AppState, Grade, LeadershipLevel, SkillLetter } from '../types';
-import { LEADERSHIP_AXIS, LETTERS, SKILL_AXIS, bandFor } from '../scoring';
-import { PageHead } from '../components/ui';
+import { LEADERSHIP_AXIS, LETTERS, SKILL_AXIS, bandFor, formatMoney } from '../scoring';
+import { CurrencyField, PageHead } from '../components/ui';
 
 const LEAD_ROWS: LeadershipLevel[] = [3, 2, 1];
 
@@ -20,14 +20,10 @@ const LEAD_ROWS: LeadershipLevel[] = [3, 2, 1];
 export function PaybandView({ state, actions }: { state: AppState; actions: Actions }) {
   return (
     <div className="stack">
-      <PageHead title="Org Payband">
-        Nine grades, one pay figure each. Skill runs A → C across the bottom; leadership runs
-        1 → 3 up the side. This is where the organisation agrees what each grade is worth — on
-        its own, independent of anyone's actual evaluation.
-      </PageHead>
+      <PageHead title="Org Payband" />
 
       <article className="of-card">
-        <p className="section-title">Why this is organisational, not team-specific</p>
+        <p className="section-title">Two separate things</p>
         <blockquote className="pull-quote" style={{ marginTop: 'var(--of-space-3)' }}>
           The descriptors are team-specific. The principles are organisational. Teams should
           have the freedom to define what great UX Design or Engineering looks like in their
@@ -36,30 +32,31 @@ export function PaybandView({ state, actions }: { state: AppState; actions: Acti
           for unfairness.
         </blockquote>
         <p className="muted" style={{ marginTop: 'var(--of-space-4)' }}>
-          In practice: what "advanced" looks like for a given capability is written per track,
-          on <strong>Framework</strong> — that's the part every team should be free to define
-          for their own context. What a grade <em>pays</em>, and what leadership scope 1, 2 and
-          3 mean, are set here, once, for everyone. A 2B should mean the same thing and pay the
-          same amount whichever team someone is on.
+          So payband is kept separate from evaluation: this page only ever edits what a grade
+          is worth. Scoring, grades and who's currently at what level happen on{' '}
+          <strong>Assess</strong> and <strong>People</strong> instead.
         </p>
       </article>
 
-      <article className="of-card of-card--brand-elevated">
-        <p className="of-card__kicker">Two separate things</p>
-        <h3>This page sets pay. It does not evaluate anyone.</h3>
-        <p style={{ marginTop: 'var(--of-space-3)' }}>
-          Payband design and team evaluation are deliberately kept apart. Here you are only
-          ever editing nine numbers — what a 1A is worth, what a 3C is worth. Nothing on this
-          page reads a person's name, a score, or a track. Changing a figure here changes what
-          that grade pays going forward; it does not touch anyone's individual assessment.
+      <article className="of-card">
+        <h3>Currency</h3>
+        <p className="muted" style={{ marginTop: 'var(--of-space-2)' }}>
+          Nothing here assumes euros, pounds or dollars. Set whatever unit the organisation
+          pays in, or clear it for bare numbers.
         </p>
-        <p style={{ marginTop: 'var(--of-space-3)' }}>
-          Peer scoring, grades, and who lands where happen on <strong>Assess</strong> and{' '}
-          <strong>People</strong> instead. Those pages compute a grade from evaluation data and
-          then look up its pay here — but the lookup only runs one direction. This page has no
-          way to know who currently holds any given grade.
+        <div style={{ marginTop: 'var(--of-space-4)' }}>
+          <CurrencyField value={state.currency} onChange={actions.setCurrency} />
+        </div>
+        <p className="text-xs subtle" style={{ marginTop: 'var(--of-space-3)' }}>
+          Preview: {formatMoney(90000, state.currency)}
         </p>
       </article>
+
+      <p className="muted">
+        Nine grades, one pay figure each. Skill runs A → C across the bottom; leadership runs
+        1 → 3 up the side. This is where the organisation agrees what each grade is worth — on
+        its own, independent of anyone's actual evaluation.
+      </p>
 
       <div className="matrix-wrap">
         <div className="matrix-yaxis">Leadership →</div>
