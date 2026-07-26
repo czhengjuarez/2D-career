@@ -136,49 +136,125 @@ export function TeamView({
 
       {error ? <div className="of-card notice notice--error">{error}</div> : null}
 
-      <section className="stack stack--tight">
-        <h3 className="section-title">Your workspaces</h3>
-        <div className="list">
-          <button
-            type="button"
-            className={`list-row workspace${workspace.id === 'local' ? ' workspace--active' : ''}`}
-            onClick={() => {
-              workspace.select('local');
-              onLoaded();
-            }}
-          >
-            <div className="list-row__main">
-              <div className="list-row__name">This browser only</div>
-              <div className="text-xs muted">Private, stored on this device, never uploaded</div>
-            </div>
-            {workspace.id === 'local' ? (
-              <span className="of-badge of-badge--green">Open</span>
-            ) : null}
-          </button>
-          {session.teams.map((entry) => (
+      <div className="grid-2">
+        <article className="of-card">
+          <h3>Start a team</h3>
+          <p className="muted" style={{ marginTop: 'var(--of-space-2)' }}>
+            You get a fresh framework seeded with the example tracks, and a code to hand to
+            colleagues.
+          </p>
+          <div className="row" style={{ marginTop: 'var(--of-space-4)' }}>
+            <input
+              className="of-input"
+              style={{ flex: 1, minWidth: 180 }}
+              placeholder="Team or company name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
             <button
-              key={entry.id}
               type="button"
-              className={`list-row workspace${workspace.id === entry.id ? ' workspace--active' : ''}`}
+              className="of-btn of-btn--primary of-btn--md"
+              disabled={busy || !name.trim()}
+              onClick={() =>
+                run(async () => {
+                  const payload = await api.createTeam(name.trim());
+                  setName('');
+                  // Stay on the Team tab — a fresh team has a join code, an owner-only
+                  // visibility setting and a name worth glancing at before going anywhere.
+                  // The team card renders below, so scroll there rather than leave it
+                  // looking like nothing happened.
+                  workspace.select(payload.team.id);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                })
+              }
+            >
+              Create
+            </button>
+          </div>
+        </article>
+
+        <article className="of-card">
+          <h3>Join a team</h3>
+          <p className="muted" style={{ marginTop: 'var(--of-space-2)' }}>
+            Enter the code a colleague gave you. You will see their framework, their people, and
+            grades — how much score detail is up to the team's visibility setting.
+          </p>
+          <div className="row" style={{ marginTop: 'var(--of-space-4)' }}>
+            <input
+              className="of-input mono"
+              style={{ flex: 1, minWidth: 140, textTransform: 'uppercase' }}
+              placeholder="ABC234"
+              maxLength={8}
+              value={code}
+              onChange={(e) => setCode(e.target.value.toUpperCase())}
+            />
+            <button
+              type="button"
+              className="of-btn of-btn--secondary of-btn--md"
+              disabled={busy || !code.trim()}
+              onClick={() =>
+                run(async () => {
+                  const payload = await api.joinTeam(code.trim());
+                  setCode('');
+                  workspace.select(payload.team.id);
+                  onLoaded();
+                })
+              }
+            >
+              Join
+            </button>
+          </div>
+        </article>
+      </div>
+
+      <details className="disc">
+        <summary>
+          Your workspaces
+          <span className="of-badge of-badge--default">{session.teams.length + 1}</span>
+        </summary>
+        <div className="disc__body">
+          <div className="list">
+            <button
+              type="button"
+              className={`list-row workspace${workspace.id === 'local' ? ' workspace--active' : ''}`}
               onClick={() => {
-                workspace.select(entry.id);
+                workspace.select('local');
                 onLoaded();
               }}
             >
               <div className="list-row__main">
-                <div className="list-row__name">{entry.name}</div>
-                <div className="text-xs muted">
-                  {entry.members.length} member{entry.members.length === 1 ? '' : 's'} · code{' '}
-                  <span className="mono">{entry.code}</span>
-                </div>
+                <div className="list-row__name">This browser only</div>
+                <div className="text-xs muted">Private, stored on this device, never uploaded</div>
               </div>
-              {workspace.id === entry.id ? (
+              {workspace.id === 'local' ? (
                 <span className="of-badge of-badge--green">Open</span>
               ) : null}
             </button>
-          ))}
+            {session.teams.map((entry) => (
+              <button
+                key={entry.id}
+                type="button"
+                className={`list-row workspace${workspace.id === entry.id ? ' workspace--active' : ''}`}
+                onClick={() => {
+                  workspace.select(entry.id);
+                  onLoaded();
+                }}
+              >
+                <div className="list-row__main">
+                  <div className="list-row__name">{entry.name}</div>
+                  <div className="text-xs muted">
+                    {entry.members.length} member{entry.members.length === 1 ? '' : 's'} · code{' '}
+                    <span className="mono">{entry.code}</span>
+                  </div>
+                </div>
+                {workspace.id === entry.id ? (
+                  <span className="of-badge of-badge--green">Open</span>
+                ) : null}
+              </button>
+            ))}
+          </div>
         </div>
-      </section>
+      </details>
 
       {team && workspace.isTeam ? (
         <section className="of-card">
@@ -431,77 +507,6 @@ export function TeamView({
       ) : null}
 
       <TokenPanel />
-
-      <div className="grid-2">
-        <article className="of-card">
-          <h3>Start a team</h3>
-          <p className="muted" style={{ marginTop: 'var(--of-space-2)' }}>
-            You get a fresh framework seeded with the example tracks, and a code to hand to
-            colleagues.
-          </p>
-          <div className="row" style={{ marginTop: 'var(--of-space-4)' }}>
-            <input
-              className="of-input"
-              style={{ flex: 1, minWidth: 180 }}
-              placeholder="Team or company name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-            <button
-              type="button"
-              className="of-btn of-btn--primary of-btn--md"
-              disabled={busy || !name.trim()}
-              onClick={() =>
-                run(async () => {
-                  const payload = await api.createTeam(name.trim());
-                  setName('');
-                  // Stay on the Team tab — a fresh team has a join code, an owner-only
-                  // visibility setting and a name worth glancing at before going anywhere.
-                  // The team card renders near the top, well above where this button sits,
-                  // so scroll there rather than leave it looking like nothing happened.
-                  workspace.select(payload.team.id);
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                })
-              }
-            >
-              Create
-            </button>
-          </div>
-        </article>
-
-        <article className="of-card">
-          <h3>Join a team</h3>
-          <p className="muted" style={{ marginTop: 'var(--of-space-2)' }}>
-            Enter the code a colleague gave you. You will see their framework, their people, and
-            grades — how much score detail is up to the team's visibility setting.
-          </p>
-          <div className="row" style={{ marginTop: 'var(--of-space-4)' }}>
-            <input
-              className="of-input mono"
-              style={{ flex: 1, minWidth: 140, textTransform: 'uppercase' }}
-              placeholder="ABC234"
-              maxLength={8}
-              value={code}
-              onChange={(e) => setCode(e.target.value.toUpperCase())}
-            />
-            <button
-              type="button"
-              className="of-btn of-btn--secondary of-btn--md"
-              disabled={busy || !code.trim()}
-              onClick={() =>
-                run(async () => {
-                  const payload = await api.joinTeam(code.trim());
-                  setCode('');
-                  workspace.select(payload.team.id);
-                  onLoaded();
-                })
-              }
-            >
-              Join
-            </button>
-          </div>
-        </article>
-      </div>
     </div>
   );
 }
