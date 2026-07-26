@@ -26,12 +26,14 @@ import { TeamView } from './views/TeamView';
 
 type TabId = 'home' | 'payband' | 'framework' | 'assess' | 'people' | 'team';
 
+/** Evaluation tabs first (daily use); Org Payband last and visually set apart — a
+ *  separate concern, not another step in the same flow. See app-shell.css .tabs__divider. */
 const TABS: { id: Exclude<TabId, 'home'>; label: string; icon: typeof Coins }[] = [
-  { id: 'payband', label: 'Org Payband', icon: Coins },
+  { id: 'team', label: 'Team', icon: UserRound },
   { id: 'framework', label: 'Framework', icon: Wrench },
   { id: 'assess', label: 'Assess', icon: ListChecks },
   { id: 'people', label: 'People', icon: Users },
-  { id: 'team', label: 'Team', icon: UserRound },
+  { id: 'payband', label: 'Org Payband', icon: Coins },
 ];
 
 const SYNC_LABEL: Record<string, string> = {
@@ -186,7 +188,7 @@ export default function App() {
       <div className="tabs-bar">
         <div className="shell">
           <div className="tabs" role="tablist" aria-label="Sections">
-            {TABS.map(({ id, label, icon: Icon }) => (
+            {TABS.map(({ id, label, icon: Icon }, index) => (
               <button
                 key={id}
                 type="button"
@@ -194,7 +196,7 @@ export default function App() {
                 id={`tab-${id}`}
                 aria-selected={tab === id}
                 aria-controls={`panel-${id}`}
-                className="tab"
+                className={`tab${index === TABS.length - 1 ? ' tab--set-apart' : ''}`}
                 onClick={() => setTab(id)}
               >
                 <Icon size={16} strokeWidth={1.75} />

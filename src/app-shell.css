@@ -162,6 +162,14 @@ p {
   color: var(--of-fg-default);
 }
 
+/* Org Payband sits apart from the evaluation tabs — a separate concern, not another
+   step in the same flow. */
+.tab--set-apart {
+  margin-left: var(--of-space-3);
+  padding-left: var(--of-space-4);
+  border-left: 1px solid var(--of-border-line);
+}
+
 .tab[aria-selected='true'] {
   color: var(--of-fg-brand);
   border-bottom-color: var(--of-bg-brand);
