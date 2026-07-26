@@ -86,7 +86,7 @@ export function CurrencyField({
   const id = useId();
   const current = value.trim();
   return (
-    <div className="of-field" style={{ maxWidth: 340 }}>
+    <div className="of-field">
       <label className="of-label" htmlFor={id}>
         {label}
       </label>

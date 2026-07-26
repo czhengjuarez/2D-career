@@ -1,6 +1,6 @@
 import type { Actions } from '../store';
 import type { AppState, Grade, LeadershipLevel, SkillLetter } from '../types';
-import { LEADERSHIP_AXIS, LETTERS, SKILL_AXIS, bandFor, formatMoney } from '../scoring';
+import { LEADERSHIP_AXIS, LETTERS, SKILL_AXIS, bandFor } from '../scoring';
 import { CurrencyField, PageHead } from '../components/ui';
 
 const LEAD_ROWS: LeadershipLevel[] = [3, 2, 1];
@@ -40,17 +40,14 @@ export function PaybandView({ state, actions }: { state: AppState; actions: Acti
 
       <article className="of-card">
         <div className="row row--top" style={{ justifyContent: 'space-between' }}>
-          <div style={{ flex: 1, minWidth: 220 }}>
+          <div style={{ flex: '1 1 0', minWidth: 220 }}>
             <h3>Currency</h3>
             <p className="muted" style={{ marginTop: 'var(--of-space-2)' }}>
               Nothing here assumes euros, pounds or dollars. Set whatever unit the
               organisation pays in, or clear it for bare numbers.
             </p>
-            <p className="text-xs subtle" style={{ marginTop: 'var(--of-space-2)' }}>
-              Preview: {formatMoney(90000, state.currency)}
-            </p>
           </div>
-          <div style={{ minWidth: 280 }}>
+          <div style={{ flex: '1 1 0', minWidth: 280 }}>
             <CurrencyField value={state.currency} onChange={actions.setCurrency} label="Symbol or code" />
           </div>
         </div>
