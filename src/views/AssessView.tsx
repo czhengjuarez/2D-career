@@ -92,7 +92,7 @@ export function AssessView({
       </PageHead>
 
       <div className="of-card">
-        <div className="row">
+        <div className="row row--top">
           <label className="of-field" style={{ flex: 1, minWidth: 200 }}>
             <span className="of-label">Who are you scoring?</span>
             <select
