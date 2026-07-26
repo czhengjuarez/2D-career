@@ -236,8 +236,10 @@ export function TeamView({
                 type="button"
                 className={`list-row workspace${workspace.id === entry.id ? ' workspace--active' : ''}`}
                 onClick={() => {
+                  // Stay on the Team tab — selecting a team should show its settings right
+                  // here, not jump away to another page.
                   workspace.select(entry.id);
-                  onLoaded();
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
               >
                 <div className="list-row__main">

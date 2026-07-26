@@ -34,7 +34,7 @@ export function HomeView({
 }: {
   state: AppState;
   actions: Actions;
-  onNavigate: (tab: 'matrix' | 'framework' | 'assess' | 'people' | 'team') => void;
+  onNavigate: (tab: 'payband' | 'framework' | 'assess' | 'people' | 'team') => void;
   signedIn: boolean;
   signInEnabled: boolean;
 }) {
@@ -70,9 +70,9 @@ export function HomeView({
           <button
             type="button"
             className="of-btn of-btn--secondary of-btn--md"
-            onClick={() => onNavigate('matrix')}
+            onClick={() => onNavigate('payband')}
           >
-            See the matrix
+            Design the payband
           </button>
         </div>
       </section>

@@ -19,7 +19,8 @@ there. The number never decides on its own.
 ## What you can do
 
 - **Home** — what the method is, how it runs, where it comes from, and the import template.
-- **Matrix** — the 3 × 3 with pay bands (editable) and everyone plotted into their cell.
+- **Payband** — "Design Payband": the nine grades and what each one pays. Deliberately
+  independent of team evaluation — see [Two separate things](#two-separate-things) below.
 - **Framework** — add your own tracks, capabilities and leadership dimensions, and write the
   A/B/C and 1/2/3 descriptors for each. Four example tracks ship as a starting point:
   UX Design, Brand Design, UX Engineering, Engineering. Delete or rewrite any of them.
@@ -27,6 +28,22 @@ there. The number never decides on its own.
   leadership dimensions. Self-scores are recorded and displayed but never counted.
 - **People** — averaged peer advice per person, the band it points to, the spread between
   peers, and an "on the line" flag when an average sits on a level boundary.
+
+### Two separate things
+
+Payband design and team evaluation are two different concerns, kept deliberately apart:
+
+- **Payband** only ever edits nine numbers — what each grade is worth. It never reads a
+  person, a score, or a track; there is no "who's in this cell" view any more.
+- **Assess / People / Framework** run the evaluation: peer scoring, grade computation, and
+  who's currently at what level.
+
+The dependency runs one way only. People's "Band" column calls `bandFor(state, grade)` to
+show what a person's computed grade is *currently* worth — evaluation reads payband data for
+display. Payband has no equivalent lookup back; editing a pay figure never touches anyone's
+individual assessment, and the grade itself is computed the same way whether or not any pay
+figures exist. Grade *computation* (`scorePerson` in `src/scoring.ts`) never references
+`state.bands` at all.
 
 ## Two workspaces
 
@@ -57,9 +74,10 @@ An admin or the owner sets this on the Team tab, per team:
 | Admins/owner see individual scores | always, with rater's name | always, with rater's name | always, with rater's name |
 
 Grades and bands never disappear, in any mode — they are computed server-side from the true
-assessments and sent to everyone as a separate summary, so the Matrix and People tabs work the
-same regardless of the setting. What changes is only whether a regular member also gets the
-raw scores behind that grade, and whether they see who gave them. Admins and the owner are
+assessments and sent to everyone as a separate summary, so the People tab works the same
+regardless of the setting. (Payband is unaffected either way — it has no person data to show
+or hide in the first place.) What changes is only whether a regular member also gets the raw
+scores behind that grade, and whether they see who gave them. Admins and the owner are
 unaffected by this setting; it exists to let *members* discuss more freely, not to hide
 anything from the people running the team.
 
@@ -257,7 +275,7 @@ src/
 ├── store.ts               # workspace state: localStorage or team-in-R2
 ├── app-shell.css          # layout built on Keel tokens
 ├── components/ui.tsx      # level picker, currency field, badges, meters
-└── views/                 # Home, Matrix, Framework, Assess, People, Team
+└── views/                 # Home, Payband, Framework, Assess, People, Team
 ```
 
 R2 keys: `users/{userId}.json`, `teams/{teamId}.json`, `codes/{JOINCODE}.json`.

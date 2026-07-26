@@ -101,6 +101,12 @@ for agents pointed at the deployment. **Keep it in step with any API change.**
 
 ## Rules that matter
 
+- **Payband design and team evaluation are separate concerns — don't recouple them.**
+  `PaybandView.tsx` edits `state.bands` only; it must never take a `people`/`summaries` prop
+  or filter by track/person again. `bandFor(state, grade)` is called one-way, from evaluation
+  views (`PeopleView.tsx`, `RemunerationDiamond.tsx`) looking up what a grade currently pays —
+  never the reverse. If a change makes Payband read `state.people` or `state.assessments`,
+  that's the coupling the rename was meant to remove.
 - **Re-check every permission in the Worker.** Hiding a control in the UI is a courtesy, not
   a control. Role helpers are `roleOf` / `isAdmin` / `isMember` in `worker/storage.ts`.
 - **Never trust `rater` from the request body.** The server sets `rater` and `raterId` from
@@ -117,7 +123,7 @@ for agents pointed at the deployment. **Keep it in step with any API change.**
   it rather than building `{ team, state }` by hand, or it will leak unredacted assessments to
   a member in `anonymous`/`averages` mode. `summaries` (per-person `PersonScore`, computed with
   the same `scorePerson` the client uses) is always sent in full, regardless of the setting —
-  an aggregate never reveals who scored whom, and the Matrix/People views need it to render
+  an aggregate never reveals who scored whom, and PeopleView needs it to render
   grades even when `state.assessments` has been redacted to `[]`.
 - **Mutate teams through `mutateTeam`**, which does a conditional R2 write against the object
   etag and retries. A bare `put` on a team object can silently overwrite a concurrent write.

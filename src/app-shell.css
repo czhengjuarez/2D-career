@@ -549,11 +549,6 @@ pre.code {
     box-shadow var(--of-dur-fast) var(--of-ease-out);
 }
 
-.cell--active {
-  border-color: var(--of-bg-brand);
-  box-shadow: 0 0 0 3px var(--of-ring);
-}
-
 .cell__grade {
   font-family: var(--of-font-mono);
   font-size: var(--of-text-xl);
@@ -570,25 +565,6 @@ pre.code {
 .cell__meta {
   font-size: var(--of-text-xs);
   color: var(--of-fg-muted);
-}
-
-.cell__people {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--of-space-1);
-  margin-top: auto;
-  padding-top: var(--of-space-2);
-}
-
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--of-space-1);
-  border-radius: var(--of-radius-pill);
-  background: var(--of-bg-recessed);
-  border: 1px solid var(--of-border-line);
-  padding: 2px var(--of-space-2);
-  font-size: var(--of-text-xs);
 }
 
 .matrix-xaxis {

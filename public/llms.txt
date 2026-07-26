@@ -21,6 +21,12 @@ skill number and one leadership number; those are averaged across peers, then ro
 grade. Self-assessments are recorded and displayed but never counted. The result is advice —
 the team sets its own pay bands together from there, never an automatic decision.
 
+Payband design and team evaluation are separate concerns in the UI: a "Design Payband" screen
+edits only `bands[]` (nine numbers, one per grade) and never reads people, scores, or tracks.
+Evaluation happens on Assess/People instead, which look up a computed grade's pay one-way —
+editing a pay figure never touches anyone's assessment, and grades compute identically
+whether or not any bands exist.
+
 ## Two workspaces
 
 - Local: no account, state in browser localStorage, nothing uploaded.

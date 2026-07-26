@@ -2,9 +2,9 @@ import { useRef, useState } from 'react';
 import {
   Cloud,
   CloudOff,
+  Coins,
   Download,
   FileJson,
-  Grid3x3,
   ListChecks,
   RotateCcw,
   Upload,
@@ -18,16 +18,16 @@ import { buildTemplate, downloadJson } from './template';
 import { ThemeToggle } from './components/ThemeToggle';
 import { ProfileMenu } from './components/ProfileMenu';
 import { HomeView } from './views/HomeView';
-import { MatrixView } from './views/MatrixView';
+import { PaybandView } from './views/PaybandView';
 import { FrameworkView } from './views/FrameworkView';
 import { AssessView } from './views/AssessView';
 import { PeopleView } from './views/PeopleView';
 import { TeamView } from './views/TeamView';
 
-type TabId = 'home' | 'matrix' | 'framework' | 'assess' | 'people' | 'team';
+type TabId = 'home' | 'payband' | 'framework' | 'assess' | 'people' | 'team';
 
-const TABS: { id: Exclude<TabId, 'home'>; label: string; icon: typeof Grid3x3 }[] = [
-  { id: 'matrix', label: 'Matrix', icon: Grid3x3 },
+const TABS: { id: Exclude<TabId, 'home'>; label: string; icon: typeof Coins }[] = [
+  { id: 'payband', label: 'Payband', icon: Coins },
   { id: 'framework', label: 'Framework', icon: Wrench },
   { id: 'assess', label: 'Assess', icon: ListChecks },
   { id: 'people', label: 'People', icon: Users },
@@ -233,9 +233,7 @@ export default function App() {
               signInEnabled={Boolean(session?.signInEnabled)}
             />
           )}
-          {tab === 'matrix' && (
-            <MatrixView state={state} actions={actions} summaries={workspace.summaries} />
-          )}
+          {tab === 'payband' && <PaybandView state={state} actions={actions} />}
           {tab === 'framework' && <FrameworkView state={state} actions={actions} />}
           {tab === 'assess' && (
             <AssessView
@@ -259,7 +257,7 @@ export default function App() {
             />
           )}
           {tab === 'team' && (
-            <TeamView session={session} workspace={workspace} onLoaded={() => setTab('matrix')} />
+            <TeamView session={session} workspace={workspace} onLoaded={() => setTab('people')} />
           )}
         </div>
       </main>

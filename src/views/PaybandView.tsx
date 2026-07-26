@@ -1,73 +1,41 @@
-import { useMemo, useState } from 'react';
 import type { Actions } from '../store';
 import type { AppState, Grade, LeadershipLevel, SkillLetter } from '../types';
-import {
-  LEADERSHIP_AXIS,
-  LETTERS,
-  SKILL_AXIS,
-  bandFor,
-  scorePerson,
-  type PersonScore,
-} from '../scoring';
+import { LEADERSHIP_AXIS, LETTERS, SKILL_AXIS, bandFor } from '../scoring';
 import { PageHead } from '../components/ui';
 
 const LEAD_ROWS: LeadershipLevel[] = [3, 2, 1];
 
-export function MatrixView({
-  state,
-  actions,
-  summaries,
-}: {
-  state: AppState;
-  actions: Actions;
-  /** Server-computed grade/band per person for a team workspace; null locally. */
-  summaries: PersonScore[] | null;
-}) {
-  const [trackFilter, setTrackFilter] = useState('all');
-
-  const scored = useMemo(
-    () =>
-      (summaries ?? state.people.map((p) => scorePerson(state, p)))
-        .filter((s) => trackFilter === 'all' || s.person.trackId === trackFilter)
-        .filter((s) => s.grade != null),
-    [state, summaries, trackFilter],
-  );
-
-  const byGrade = useMemo(() => {
-    const map = new Map<Grade, string[]>();
-    for (const s of scored) {
-      if (!s.grade) continue;
-      map.set(s.grade, [...(map.get(s.grade) ?? []), s.person.name]);
-    }
-    return map;
-  }, [scored]);
-
+/**
+ * Payband design is deliberately independent of team evaluation. This page defines what
+ * each of the nine grades is worth; it never reads a person, a score, or a track filter —
+ * that data lives in Assess/People/Framework instead. See the "Two separate things" card
+ * below for the explanation shown to users.
+ */
+export function PaybandView({ state, actions }: { state: AppState; actions: Actions }) {
   return (
     <div className="stack">
-      <PageHead
-        title="The 3 × 3"
-        aside={
-          <label className="of-field" style={{ minWidth: 200 }}>
-            <span className="of-label">Show people from</span>
-            <select
-              className="of-select"
-              value={trackFilter}
-              onChange={(e) => setTrackFilter(e.target.value)}
-            >
-              <option value="all">All tracks</option>
-              {state.tracks.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}
-                </option>
-              ))}
-            </select>
-          </label>
-        }
-      >
-        Two axes, three levels each. Skills &amp; capabilities run A → C across the bottom;
-        leadership runs 1 → 3 up the side. Nine cells, grouped into pay bands — a grade is peer
-        advice, not a decision. Pay figures are editable; decide them together as a team.
+      <PageHead title="Design Payband">
+        Nine grades, one pay figure each. Skill runs A → C across the bottom; leadership runs
+        1 → 3 up the side. This is where the organisation agrees what each grade is worth — on
+        its own, independent of anyone's actual evaluation.
       </PageHead>
+
+      <article className="of-card of-card--brand-elevated">
+        <p className="of-card__kicker">Two separate things</p>
+        <h3>This page sets pay. It does not evaluate anyone.</h3>
+        <p style={{ marginTop: 'var(--of-space-3)' }}>
+          Payband design and team evaluation are deliberately kept apart. Here you are only
+          ever editing nine numbers — what a 1A is worth, what a 3C is worth. Nothing on this
+          page reads a person's name, a score, or a track. Changing a figure here changes what
+          that grade pays going forward; it does not touch anyone's individual assessment.
+        </p>
+        <p style={{ marginTop: 'var(--of-space-3)' }}>
+          Peer scoring, grades, and who lands where happen on <strong>Assess</strong> and{' '}
+          <strong>People</strong> instead. Those pages compute a grade from evaluation data and
+          then look up its pay here — but the lookup only runs one direction. This page has no
+          way to know who currently holds any given grade.
+        </p>
+      </article>
 
       <div className="matrix-wrap">
         <div className="matrix-yaxis">Leadership →</div>
@@ -77,9 +45,8 @@ export function MatrixView({
               LETTERS.map((letter: SkillLetter) => {
                 const grade = `${lead}${letter}` as Grade;
                 const band = bandFor(state, grade);
-                const names = byGrade.get(grade) ?? [];
                 return (
-                  <div key={grade} className={`cell${names.length ? ' cell--active' : ''}`}>
+                  <div key={grade} className="cell">
                     <div className="row" style={{ justifyContent: 'space-between' }}>
                       <span className="cell__grade">{grade}</span>
                       {band ? <span className="of-badge of-badge--default">{band.label}</span> : null}
@@ -102,13 +69,6 @@ export function MatrixView({
                     <span className="cell__meta">
                       {LEADERSHIP_AXIS[lead].title} · {SKILL_AXIS[letter].title}
                     </span>
-                    <div className="cell__people">
-                      {names.map((n) => (
-                        <span key={n} className="chip">
-                          {n}
-                        </span>
-                      ))}
-                    </div>
                   </div>
                 );
               }),
@@ -147,16 +107,6 @@ export function MatrixView({
           </div>
         </article>
       </div>
-
-      <article className="of-card of-card--brand-elevated">
-        <p className="of-card__kicker">How it runs</p>
-        <h3>Peers score, the team decides</h3>
-        <p style={{ marginTop: 'var(--of-space-3)' }}>
-          Everyone rates the colleagues they actually work with on both axes. Those peer scores
-          are averaged into one grade, and that grade is <em>advice</em> — the starting point for
-          the team to set the band together, out loud, rather than a verdict handed down.
-        </p>
-      </article>
     </div>
   );
 }
