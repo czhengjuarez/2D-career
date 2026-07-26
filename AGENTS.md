@@ -53,7 +53,7 @@ stale UI against a fresh Worker.
 
 Every `/api/*` route needs a credential — a session cookie or a personal access token;
 `handleTeam` re-checks membership and role on each one. Responses that mutate a team return
-`{ team, state }`.
+`{ team, state, summaries }` — see `teamResponsePayload` below.
 
 | Route | Method | Who |
 |---|---|---|
@@ -72,6 +72,7 @@ Every `/api/*` route needs a credential — a session cookie or a personal acces
 | `/api/teams/:id/members/:userId` | PUT | owner — `{ role: 'owner' \| 'admin' \| 'member' }` |
 | `/api/teams/:id/members/:userId` | DELETE | admin (owner to remove an admin) |
 | `/api/teams/:id/code` | POST | admin — rotates the join code |
+| `/api/teams/:id/visibility` | PUT | admin — `{ scoreVisibility: 'open' \| 'anonymous' \| 'averages' }` |
 | `/api/teams/:id/leave` | POST | member — owners must hand over or delete instead |
 | `/api/tokens` | GET / POST | signed in — **cookie only** |
 | `/api/tokens/:id` | DELETE | signed in — **cookie only** |
@@ -111,6 +112,13 @@ for agents pointed at the deployment. **Keep it in step with any API change.**
   `POST /api/teams/:id/claim`; the state PUT re-applies the existing links and discards
   whatever the client sent. Joining a team calls `ensureRosterEntry`, which adopts a
   name-matching unclaimed row instead of creating a duplicate.
+- **`teamResponsePayload(team, viewerId)`** (`worker/storage.ts`) is the one place
+  `Team.scoreVisibility` gets enforced — every route that returns team state must go through
+  it rather than building `{ team, state }` by hand, or it will leak unredacted assessments to
+  a member in `anonymous`/`averages` mode. `summaries` (per-person `PersonScore`, computed with
+  the same `scorePerson` the client uses) is always sent in full, regardless of the setting —
+  an aggregate never reveals who scored whom, and the Matrix/People views need it to render
+  grades even when `state.assessments` has been redacted to `[]`.
 - **Mutate teams through `mutateTeam`**, which does a conditional R2 write against the object
   etag and retries. A bare `put` on a team object can silently overwrite a concurrent write.
 - **`stateVersion` vs `version`**: clients send `stateVersion` when saving the framework;
@@ -163,4 +171,6 @@ the happy path.
 - Don't add runtime dependencies for things Keel already provides.
 - Don't store a token secret anywhere — only its hash. Never log or return it after minting.
 - Don't let token auth reach `/api/tokens*`; that gate is what contains a leaked token.
+- Don't build `{ team, state }` by hand in a new endpoint — use `teamResponsePayload`, or a
+  restrictive `scoreVisibility` setting silently stops applying to that route.
 - Don't reach for a framework router; the app is tab state in `src/App.tsx` by design.

@@ -233,7 +233,9 @@ export default function App() {
               signInEnabled={Boolean(session?.signInEnabled)}
             />
           )}
-          {tab === 'matrix' && <MatrixView state={state} actions={actions} />}
+          {tab === 'matrix' && (
+            <MatrixView state={state} actions={actions} summaries={workspace.summaries} />
+          )}
           {tab === 'framework' && <FrameworkView state={state} actions={actions} />}
           {tab === 'assess' && (
             <AssessView
@@ -253,6 +255,7 @@ export default function App() {
                 isAdmin: adminOfCurrentTeam,
                 isTeam: workspace.isTeam,
               }}
+              summaries={workspace.summaries}
             />
           )}
           {tab === 'team' && (

@@ -893,6 +893,37 @@ table.data td {
   gap: var(--of-space-1);
 }
 
+.visibility-option {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--of-space-3);
+  padding: var(--of-space-3);
+  border: 1px solid var(--of-border-line);
+  border-radius: var(--of-radius-md);
+  background: var(--of-bg-base);
+  cursor: pointer;
+}
+
+.visibility-option:has(input:checked) {
+  border-color: var(--of-bg-brand);
+}
+
+.visibility-option input {
+  margin-top: 3px;
+  accent-color: var(--of-bg-brand);
+  flex: none;
+}
+
+.visibility-option > span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.visibility-option__label {
+  font-weight: 600;
+}
+
 .icon-spacer {
   display: inline-block;
   width: 26px;

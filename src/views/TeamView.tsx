@@ -1,9 +1,37 @@
 import { useState } from 'react';
-import { Check, Copy, LogOut, RefreshCw, ShieldCheck, Trash2, UserMinus, Users } from 'lucide-react';
-import { ApiError, api, type TeamRole } from '../api';
+import {
+  Check,
+  Copy,
+  Eye,
+  LogOut,
+  RefreshCw,
+  ShieldCheck,
+  Trash2,
+  UserMinus,
+  Users,
+} from 'lucide-react';
+import { ApiError, api, type ScoreVisibility, type TeamRole } from '../api';
 import type { Session, Workspace } from '../store';
 import { PageHead } from '../components/ui';
 import { TokenPanel } from '../components/TokenPanel';
+
+const VISIBILITY: { value: ScoreVisibility; label: string; blurb: string }[] = [
+  {
+    value: 'open',
+    label: 'Open',
+    blurb: "Everyone sees every score, including who gave it. The default — a grade is a starting point for a conversation the whole team can see.",
+  },
+  {
+    value: 'anonymous',
+    label: 'Anonymous',
+    blurb: 'Everyone sees every score, but not who gave it. Keeps the detail without the social pressure of attaching a name to it.',
+  },
+  {
+    value: 'averages',
+    label: 'Averages only',
+    blurb: "Everyone still sees everyone's averaged grade and band — just none of the individual scores behind it.",
+  },
+];
 
 export function TeamView({
   session,
@@ -77,9 +105,11 @@ export function TeamView({
               bands live in one place, and everyone edits the same copy.
             </p>
             <p className="muted">
-              <strong>Scores are attributed and visible.</strong> Every score carries the name of
-              the person who gave it, and every team member can see them. That is a deliberate
-              choice — it works when the team has already agreed to it, and badly when it has not.
+              <strong>Scores are always attributed, visibility is the team's call.</strong> Every
+              score always carries the name of the person who gave it. By default every team
+              member can see that — a deliberate choice that only works once the team has agreed
+              to it — but the owner or an admin can dial it back to anonymous, or to averages
+              only, from the Team tab at any time.
             </p>
             <p className="muted">
               <strong>The local workspace stays.</strong> You can switch back at any time to sketch
@@ -99,8 +129,9 @@ export function TeamView({
   return (
     <div className="stack">
       <PageHead title="Team">
-        Signed in as {session.user.name}. Anyone with the join code can enter the team and see
-        everything in it, including every individual score.
+        Signed in as {session.user.name}. Anyone with the join code can enter the team and see its
+        framework and grades; how much score detail they see is up to the team's visibility
+        setting, below.
       </PageHead>
 
       {error ? <div className="of-card notice notice--error">{error}</div> : null}
@@ -153,9 +184,18 @@ export function TeamView({
         <section className="of-card">
           <div className="row" style={{ justifyContent: 'space-between' }}>
             <h3>{team.name}</h3>
-            <span className="of-badge of-badge--blue">
-              <Users size={13} strokeWidth={1.75} /> {team.members.length}
-            </span>
+            <div className="row" style={{ gap: 'var(--of-space-2)' }}>
+              <span
+                className="of-badge of-badge--default"
+                title={VISIBILITY.find((v) => v.value === team.scoreVisibility)?.blurb}
+              >
+                <Eye size={13} strokeWidth={1.75} />
+                {VISIBILITY.find((v) => v.value === team.scoreVisibility)?.label ?? 'Open'}
+              </span>
+              <span className="of-badge of-badge--blue">
+                <Users size={13} strokeWidth={1.75} /> {team.members.length}
+              </span>
+            </div>
           </div>
 
           <div className="join-code">
@@ -309,6 +349,37 @@ export function TeamView({
                   Rename
                 </button>
               </div>
+
+              <div className="section-title" style={{ marginTop: 'var(--of-space-5)' }}>
+                Who sees individual scores
+              </div>
+              <p className="text-xs muted" style={{ marginTop: 'var(--of-space-2)' }}>
+                Admins and the owner always see everything, whatever this is set to — it only
+                changes what a regular member sees.
+              </p>
+              <div className="stack stack--tight" style={{ marginTop: 'var(--of-space-3)' }}>
+                {VISIBILITY.map((option) => (
+                  <label key={option.value} className="visibility-option">
+                    <input
+                      type="radio"
+                      name="scoreVisibility"
+                      value={option.value}
+                      checked={team.scoreVisibility === option.value}
+                      disabled={busy}
+                      onChange={() =>
+                        run(async () => {
+                          const payload = await api.setVisibility(team.id, option.value);
+                          workspace.applyPayload(payload);
+                        })
+                      }
+                    />
+                    <span>
+                      <span className="visibility-option__label">{option.label}</span>
+                      <span className="text-xs muted">{option.blurb}</span>
+                    </span>
+                  </label>
+                ))}
+              </div>
             </div>
           ) : null}
 
@@ -397,8 +468,8 @@ export function TeamView({
         <article className="of-card">
           <h3>Join a team</h3>
           <p className="muted" style={{ marginTop: 'var(--of-space-2)' }}>
-            Enter the code a colleague gave you. You will see their framework, their people and
-            every score already submitted.
+            Enter the code a colleague gave you. You will see their framework, their people, and
+            grades — how much score detail is up to the team's visibility setting.
           </p>
           <div className="row" style={{ marginTop: 'var(--of-space-4)' }}>
             <input

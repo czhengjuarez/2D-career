@@ -46,6 +46,28 @@ there. The number never decides on its own.
 | Assign roles / hand over ownership | — | — | ✅ |
 | Delete the team | — | — | ✅ |
 
+### Who sees individual scores
+
+An admin or the owner sets this on the Team tab, per team:
+
+| | open (default) | anonymous | averages only |
+|---|---|---|---|
+| Everyone sees every grade and band | ✅ | ✅ | ✅ |
+| Members see individual scores | ✅, with rater's name | ✅, rater hidden | — |
+| Admins/owner see individual scores | always, with rater's name | always, with rater's name | always, with rater's name |
+
+Grades and bands never disappear, in any mode — they are computed server-side from the true
+assessments and sent to everyone as a separate summary, so the Matrix and People tabs work the
+same regardless of the setting. What changes is only whether a regular member also gets the
+raw scores behind that grade, and whether they see who gave them. Admins and the owner are
+unaffected by this setting; it exists to let *members* discuss more freely, not to hide
+anything from the people running the team.
+
+Defaults to **open**, matching how the app behaved before this setting existed. **Anonymous**
+keeps every score visible but strips the rater's identity. **Averages only** hides individual
+scores from members entirely — useful if a team wants the transparency of visible grades
+without the exposure of visible per-score detail.
+
 ### Why the admin model works this way
 
 Pay data makes the usual "everyone can do everything" shortcut a bad idea, but a heavy
@@ -67,11 +89,12 @@ rotate the join code and remove members — the day-to-day. Assigning roles and 
 team stay with the owner, and an admin cannot remove another admin, so no single admin can
 quietly take the team over.
 
-**Score deletion is split by author.** Scores are visible to everyone, which makes it
-tempting to let anyone tidy them up — but a score is a person's stated judgement about a
-colleague, and deleting someone else's is a different act from withdrawing your own. So:
-anyone may withdraw a score they submitted, only admins may delete a score submitted by
-someone else.
+**Score deletion is split by author.** In the default, open setting, scores are visible to
+everyone, which makes it tempting to let anyone tidy them up — but a score is a person's
+stated judgement about a colleague, and deleting someone else's is a different act from
+withdrawing your own. So: anyone may withdraw a score they submitted, only admins may delete
+a score submitted by someone else. This rule doesn't change under the anonymous or
+averages-only settings — it was never about who could *see* a score, only who authored it.
 
 **Joining a team puts you on the roster.** The people being scored and the accounts in the
 team are two different lists — a contractor with no login can still be assessed. But nobody

@@ -1,4 +1,5 @@
 import type { AppState, Assessment } from './types';
+import type { PersonScore } from './scoring';
 
 export interface SessionUser {
   id: string;
@@ -8,6 +9,12 @@ export interface SessionUser {
 }
 
 export type TeamRole = 'owner' | 'admin' | 'member';
+
+/**
+ * Who besides an admin sees individual scores. Admins and the owner always see everything;
+ * this only changes what a regular member's copy of the team looks like.
+ */
+export type ScoreVisibility = 'open' | 'anonymous' | 'averages';
 
 export interface TeamMember {
   userId: string;
@@ -25,6 +32,7 @@ export interface TeamSummary {
   members: TeamMember[];
   version: number;
   stateVersion: number;
+  scoreVisibility: ScoreVisibility;
 }
 
 export interface AccessToken {
@@ -37,6 +45,12 @@ export interface AccessToken {
 export interface TeamPayload {
   team: TeamSummary;
   state: AppState;
+  /**
+   * Aggregate-only grade/band for every person, always sent in full regardless of
+   * scoreVisibility — an average never reveals who scored whom. Views should prefer this
+   * over recomputing from `state.assessments`, which may be redacted or empty.
+   */
+  summaries: PersonScore[];
 }
 
 export class ApiError extends Error {
@@ -126,6 +140,12 @@ export const api = {
   deleteTeam: (id: string) => call<{ ok: true }>(`/api/teams/${id}`, { method: 'DELETE' }),
 
   rotateCode: (id: string) => call<TeamPayload>(`/api/teams/${id}/code`, { method: 'POST' }),
+
+  setVisibility: (id: string, scoreVisibility: ScoreVisibility) =>
+    call<TeamPayload>(`/api/teams/${id}/visibility`, {
+      method: 'PUT',
+      body: JSON.stringify({ scoreVisibility }),
+    }),
 
   leaveTeam: (id: string) => call<{ ok: true }>(`/api/teams/${id}/leave`, { method: 'POST' }),
 };

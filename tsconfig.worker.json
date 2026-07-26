@@ -19,5 +19,5 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["worker", "src/types.ts", "src/seed.ts"]
+  "include": ["worker", "src/types.ts", "src/seed.ts", "src/scoring.ts"]
 }

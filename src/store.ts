@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { seedState, uid } from './seed';
-import { ApiError, api, type SessionUser, type TeamSummary } from './api';
+import { ApiError, api, type SessionUser, type TeamPayload, type TeamSummary } from './api';
+import type { PersonScore } from './scoring';
 import type {
   AppState,
   Assessment,
@@ -52,6 +53,8 @@ export function useWorkspace() {
   const [team, setTeam] = useState<TeamSummary | null>(null);
   const [status, setStatus] = useState<SyncStatus>('idle');
   const [notice, setNotice] = useState<string | null>(null);
+  /** Server-computed grade/band per person, for a team workspace only — see api.ts. */
+  const [summaries, setSummaries] = useState<PersonScore[] | null>(null);
 
   const versionRef = useRef(0);
   const versionSeenRef = useRef(0);
@@ -60,32 +63,35 @@ export function useWorkspace() {
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isTeam = workspaceId !== 'local';
 
-  const applyPayload = useCallback((payload: { team: TeamSummary; state: AppState }) => {
+  const applyPayload = useCallback((payload: TeamPayload) => {
     skipSaveRef.current = true;
     versionRef.current = payload.team.stateVersion;
     versionSeenRef.current = payload.team.version;
     setTeam(payload.team);
     setState(payload.state);
+    setSummaries(payload.summaries);
   }, []);
 
-  /**
-   * Scores arrive without disturbing whatever the person is editing — only the
-   * assessment list is taken from the server response.
-   */
   /** Roster claims come back from the server; only the people list is taken. */
-  const applyPeople = useCallback((payload: { team: TeamSummary; state: AppState }) => {
+  const applyPeople = useCallback((payload: TeamPayload) => {
     skipSaveRef.current = true;
     versionSeenRef.current = payload.team.version;
     versionRef.current = payload.team.stateVersion;
     setTeam(payload.team);
     setState((current) => ({ ...current, people: payload.state.people }));
+    setSummaries(payload.summaries);
   }, []);
 
-  const applyScores = useCallback((payload: { team: TeamSummary; state: AppState }) => {
+  /**
+   * Scores arrive without disturbing whatever the person is editing — only the
+   * assessment list (and the summaries it feeds) are taken from the server response.
+   */
+  const applyScores = useCallback((payload: TeamPayload) => {
     skipSaveRef.current = true;
     versionSeenRef.current = payload.team.version;
     setTeam(payload.team);
     setState((current) => ({ ...current, assessments: payload.state.assessments }));
+    setSummaries(payload.summaries);
   }, []);
 
   useEffect(() => {
@@ -112,6 +118,7 @@ export function useWorkspace() {
       skipSaveRef.current = true;
       setTeam(null);
       setState(loadLocal());
+      setSummaries(null);
       setStatus('idle');
       return;
     }
@@ -158,7 +165,7 @@ export function useWorkspace() {
         })
         .catch((error: ApiError) => {
           if (error.status === 409) {
-            const payload = error.payload as { team: TeamSummary; state: AppState };
+            const payload = error.payload as TeamPayload;
             applyPayload(payload);
             setNotice('A teammate saved first — their version is now loaded.');
             setStatus('idle');
@@ -358,6 +365,8 @@ export function useWorkspace() {
       team,
       status,
       notice,
+      /** Server-computed grade/band per person; null in the local workspace. */
+      summaries,
       dismissNotice: () => setNotice(null),
       select: (id: WorkspaceId) => setWorkspaceId(id),
       refreshSession,
@@ -368,7 +377,7 @@ export function useWorkspace() {
         await refreshSession();
       },
     }),
-    [workspaceId, isTeam, team, status, notice, refreshSession, applyPayload],
+    [workspaceId, isTeam, team, status, notice, summaries, refreshSession, applyPayload],
   );
 
   return { state, actions, session, workspace };

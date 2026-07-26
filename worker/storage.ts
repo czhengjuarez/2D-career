@@ -1,6 +1,7 @@
 /// <reference types="@cloudflare/workers-types" />
 
 import type { AppState } from '../src/types';
+import { scorePerson, type PersonScore } from '../src/scoring';
 import type { SessionUser } from './auth';
 
 export interface StoredUser extends SessionUser {
@@ -22,6 +23,13 @@ export interface TeamMember {
   joinedAt: string;
 }
 
+/**
+ * Who other than an admin gets to see individual scores. Admins and the owner always see
+ * everything, regardless of this setting — it only throttles what regular members get.
+ * Defaults to 'open', matching the app's behavior before this setting existed.
+ */
+export type ScoreVisibility = 'open' | 'anonymous' | 'averages';
+
 export interface Team {
   id: string;
   name: string;
@@ -36,6 +44,8 @@ export interface Team {
    */
   stateVersion: number;
   state: AppState;
+  /** Missing on teams created before this setting existed — treat as 'open'. */
+  scoreVisibility?: ScoreVisibility;
 }
 
 export const userKey = (id: string) => `users/${id}.json`;
@@ -96,7 +106,7 @@ export function isAdmin(team: Team, userId: string): boolean {
   return role === 'owner' || role === 'admin';
 }
 
-/** What a client is allowed to see about a team — which, by design here, is everything. */
+/** Metadata a client is allowed to see about a team — membership, not its scores. */
 export function teamSummary(team: Team) {
   return {
     id: team.id,
@@ -105,5 +115,49 @@ export function teamSummary(team: Team) {
     members: team.members,
     version: team.version,
     stateVersion: team.stateVersion,
+    scoreVisibility: team.scoreVisibility ?? 'open',
   };
+}
+
+/**
+ * What a given viewer's copy of the team's scores looks like — the one place this
+ * decision is made, so every route that returns state goes through it. Admins and the
+ * owner always get the true, unredacted assessments. A regular member gets:
+ *   - 'open'      the same, unredacted list (today's default behaviour)
+ *   - 'anonymous' every score, but with the rater's identity stripped
+ *   - 'averages'  no individual scores at all
+ * `summaries` is always the full, aggregate-only PersonScore for every person — grades and
+ * bands never depend on seeing who scored whom, so it is sent regardless of the setting
+ * above and lets the Matrix and People views render without needing raw assessments.
+ */
+export function teamResponsePayload(team: Team, viewerId: string) {
+  const state = team.state;
+  const summaries: PersonScore[] = state.people.map((person) => scorePerson(state, person));
+
+  if (isAdmin(team, viewerId)) {
+    return { team: teamSummary(team), state, summaries };
+  }
+
+  const visibility = team.scoreVisibility ?? 'open';
+  if (visibility === 'open') {
+    return { team: teamSummary(team), state, summaries };
+  }
+
+  if (visibility === 'anonymous') {
+    return {
+      team: teamSummary(team),
+      state: {
+        ...state,
+        assessments: state.assessments.map((a) => ({
+          ...a,
+          rater: 'Team member',
+          raterId: undefined,
+        })),
+      },
+      summaries,
+    };
+  }
+
+  // 'averages' — the roster still shows every grade (via summaries), just no per-score detail.
+  return { team: teamSummary(team), state: { ...state, assessments: [] }, summaries };
 }

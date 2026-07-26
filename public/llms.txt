@@ -25,7 +25,9 @@ the team sets its own pay bands together from there, never an automatic decision
 
 - Local: no account, state in browser localStorage, nothing uploaded.
 - Team: Google sign-in, join by 6-character code, state in Cloudflare R2, shared by the team.
-  Scores are attributed to the signed-in account and visible to every member.
+  Scores are always attributed to the signed-in account server-side. Whether a regular
+  member also *sees* that detail is a per-team setting (see Score visibility, below); admins
+  and the owner always see everything regardless of it.
 
 ## Data model
 
@@ -76,6 +78,7 @@ POST   /api/teams/:id/claim                      { personId | null }
 PUT    /api/teams/:id/members/:userId            { role }             owner
 DELETE /api/teams/:id/members/:userId                                 admin
 POST   /api/teams/:id/code                                            admin
+PUT    /api/teams/:id/visibility                 { scoreVisibility }   admin
 POST   /api/teams/:id/leave
 
 DELETE /api/me                                                        cookie only, deletes account
@@ -91,6 +94,20 @@ re-read and retry rather than forcing.
 
 Roles: member < admin < owner. Exactly one owner per team. Every rule is enforced
 server-side, not only in the UI.
+
+## Score visibility
+
+Every response that includes team state also includes `summaries` — one aggregate
+`{ person, track, skill, leadership, grade, band, spread, peerCount }` per person, computed
+server-side, sent in full regardless of the setting below (an average never reveals who
+scored whom). What varies is `state.assessments`, the raw per-score records:
+
+- `open` (default) — full detail, real rater name, to every member.
+- `anonymous` — full detail, but `rater` is replaced with a placeholder and `raterId` omitted.
+- `averages` — `state.assessments` is `[]` for a regular member; only `summaries` is available.
+
+Admins and the owner always receive unredacted `assessments`, in every mode. An agent acting
+as a plain member should read grades from `summaries`, not assume `assessments` is populated.
 
 ## Lifecycle
 

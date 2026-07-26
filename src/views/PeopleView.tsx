@@ -2,18 +2,21 @@ import { useState } from 'react';
 import { Plus, UserCheck } from 'lucide-react';
 import type { Actions } from '../store';
 import type { AppState } from '../types';
-import { bandFor, formatMoney, gradeOf, scoreAssessment, scorePerson } from '../scoring';
+import { bandFor, formatMoney, gradeOf, scoreAssessment, scorePerson, type PersonScore } from '../scoring';
 import { DeleteButton, GradeBadge, Meter, PageHead } from '../components/ui';
 
 export function PeopleView({
   state,
   actions,
   viewer,
+  summaries,
 }: {
   state: AppState;
   actions: Actions;
   /** In a team, only the rater or an admin may withdraw a score. */
   viewer: { userId: string | null; isAdmin: boolean; isTeam: boolean };
+  /** Server-computed grade/band per person for a team workspace; null locally. */
+  summaries: PersonScore[] | null;
 }) {
   const [name, setName] = useState('');
   const [role, setRole] = useState('');
@@ -27,7 +30,10 @@ export function PeopleView({
     setRole('');
   };
 
-  const scores = state.people.map((p) => scorePerson(state, p));
+  // The server's copy is authoritative for a team — it is computed from the true,
+  // unredacted assessments even when this browser's own copy has been anonymised or
+  // stripped for a restrictive visibility setting.
+  const scores = summaries ?? state.people.map((p) => scorePerson(state, p));
   const isMe = (person: { accountId?: string }) =>
     Boolean(viewer.userId && person.accountId === viewer.userId);
 

@@ -7,21 +7,30 @@ import {
   SKILL_AXIS,
   bandFor,
   scorePerson,
+  type PersonScore,
 } from '../scoring';
 import { PageHead } from '../components/ui';
 
 const LEAD_ROWS: LeadershipLevel[] = [3, 2, 1];
 
-export function MatrixView({ state, actions }: { state: AppState; actions: Actions }) {
+export function MatrixView({
+  state,
+  actions,
+  summaries,
+}: {
+  state: AppState;
+  actions: Actions;
+  /** Server-computed grade/band per person for a team workspace; null locally. */
+  summaries: PersonScore[] | null;
+}) {
   const [trackFilter, setTrackFilter] = useState('all');
 
   const scored = useMemo(
     () =>
-      state.people
-        .filter((p) => trackFilter === 'all' || p.trackId === trackFilter)
-        .map((p) => scorePerson(state, p))
+      (summaries ?? state.people.map((p) => scorePerson(state, p)))
+        .filter((s) => trackFilter === 'all' || s.person.trackId === trackFilter)
         .filter((s) => s.grade != null),
-    [state, trackFilter],
+    [state, summaries, trackFilter],
   );
 
   const byGrade = useMemo(() => {

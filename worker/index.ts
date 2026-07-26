@@ -34,6 +34,7 @@ import {
   putJson,
   roleOf,
   teamKey,
+  teamResponsePayload,
   teamSummary,
   tombstoneKey,
   userKey,
@@ -412,7 +413,7 @@ async function createTeam(request: Request, env: Env, user: SessionUser): Promis
   await putJson(env.DATA, teamKey(team.id), team);
   await putJson(env.DATA, codeKey(code), { teamId: team.id });
   await addTeamToUser(env, user, team.id);
-  return json({ team: teamSummary(team), state: team.state });
+  return json(teamResponsePayload(team, user.id));
 }
 
 async function joinTeam(request: Request, env: Env, user: SessionUser): Promise<Response> {
@@ -439,7 +440,7 @@ async function joinTeam(request: Request, env: Env, user: SessionUser): Promise<
   if (!team) return fail(404, 'That team no longer exists.');
 
   await addTeamToUser(env, user, team.id);
-  return json({ team: teamSummary(team), state: team.state });
+  return json(teamResponsePayload(team, user.id));
 }
 
 async function handleTeam(
@@ -455,7 +456,7 @@ async function handleTeam(
 
   // GET /api/teams/:id
   if (request.method === 'GET' && !action) {
-    return json({ team: teamSummary(team), state: team.state });
+    return json(teamResponsePayload(team, user.id));
   }
 
   // PUT /api/teams/:id — framework, people and pay bands
@@ -487,11 +488,11 @@ async function handleTeam(
     });
     if (stale) {
       return json(
-        { error: 'stale', team: teamSummary(updated!), state: updated!.state },
+        { error: 'stale', ...teamResponsePayload(updated!, user.id) },
         { status: 409 },
       );
     }
-    return json({ team: teamSummary(updated!), state: updated!.state });
+    return json(teamResponsePayload(updated!, user.id));
   }
 
   // POST /api/teams/:id/assessments
@@ -506,7 +507,7 @@ async function handleTeam(
       ];
       return current;
     });
-    return json({ team: teamSummary(updated!), state: updated!.state });
+    return json(teamResponsePayload(updated!, user.id));
   }
 
   // DELETE /api/teams/:id/assessments/:assessmentId
@@ -520,7 +521,7 @@ async function handleTeam(
       current.state.assessments = current.state.assessments.filter((a) => a.id !== actionId);
       return current;
     });
-    return json({ team: teamSummary(updated!), state: updated!.state });
+    return json(teamResponsePayload(updated!, user.id));
   }
 
   // POST /api/teams/:id/claim — say which roster row is you (null to unclaim)
@@ -548,7 +549,7 @@ async function handleTeam(
       current.stateVersion = current.version + 1;
       return current;
     });
-    return json({ team: teamSummary(updated!), state: updated!.state });
+    return json(teamResponsePayload(updated!, user.id));
   }
 
   // PATCH /api/teams/:id — rename
@@ -561,7 +562,7 @@ async function handleTeam(
       current.name = name;
       return current;
     });
-    return json({ team: teamSummary(updated!), state: updated!.state });
+    return json(teamResponsePayload(updated!, user.id));
   }
 
   // PUT /api/teams/:id/members/:userId — change a role
@@ -588,7 +589,7 @@ async function handleTeam(
       });
       return current;
     });
-    return json({ team: teamSummary(updated!), state: updated!.state });
+    return json(teamResponsePayload(updated!, user.id));
   }
 
   // DELETE /api/teams/:id/members/:userId — remove someone
@@ -614,7 +615,7 @@ async function handleTeam(
       });
     }
     // Their scores stay: removing a person should not silently rewrite everyone's grades.
-    return json({ team: teamSummary(updated!), state: updated!.state });
+    return json(teamResponsePayload(updated!, user.id));
   }
 
   // DELETE /api/teams/:id — owner deletes the team outright
@@ -643,7 +644,24 @@ async function handleTeam(
     });
     await env.DATA.delete(codeKey(team.code));
     await putJson(env.DATA, codeKey(next), { teamId });
-    return json({ team: teamSummary(updated!), state: updated!.state });
+    return json(teamResponsePayload(updated!, user.id));
+  }
+
+  // PUT /api/teams/:id/visibility — who besides an admin sees individual scores
+  if (request.method === 'PUT' && action === 'visibility') {
+    if (!isAdmin(team, user.id)) {
+      return fail(403, 'Only an admin can change who sees individual scores.');
+    }
+    const body = (await request.json().catch(() => ({}))) as { scoreVisibility?: string };
+    const visibility = body.scoreVisibility;
+    if (visibility !== 'open' && visibility !== 'anonymous' && visibility !== 'averages') {
+      return fail(400, 'Unknown visibility setting.');
+    }
+    const updated = await mutateTeam(env.DATA, teamId, (current) => {
+      current.scoreVisibility = visibility;
+      return current;
+    });
+    return json(teamResponsePayload(updated!, user.id));
   }
 
   // POST /api/teams/:id/leave
