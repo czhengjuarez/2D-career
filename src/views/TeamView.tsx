@@ -5,13 +5,14 @@ import {
   Eye,
   LogOut,
   RefreshCw,
+  RotateCcw,
   ShieldCheck,
   Trash2,
   UserMinus,
   Users,
 } from 'lucide-react';
 import { ApiError, api, type ScoreVisibility, type TeamRole } from '../api';
-import type { Session, Workspace } from '../store';
+import type { Actions, Session, Workspace } from '../store';
 import { PageHead } from '../components/ui';
 import { TokenPanel } from '../components/TokenPanel';
 
@@ -36,10 +37,12 @@ const VISIBILITY: { value: ScoreVisibility; label: string; blurb: string }[] = [
 export function TeamView({
   session,
   workspace,
+  actions,
   onLoaded,
 }: {
   session: Session | null;
   workspace: Workspace;
+  actions: Actions;
   onLoaded: () => void;
 }) {
   const [name, setName] = useState('');
@@ -258,7 +261,33 @@ export function TeamView({
         </div>
       </details>
 
-      {team && workspace.isTeam ? (
+      {!workspace.isTeam ? (
+        <section className="of-card">
+          <div className="row" style={{ justifyContent: 'space-between' }}>
+            <h3>This browser only</h3>
+            <span className="of-badge of-badge--default">Not shared</span>
+          </div>
+          <p className="muted" style={{ marginTop: 'var(--of-space-2)' }}>
+            Tracks, people, scores and pay bands here are stored in this browser and nowhere
+            else. Sign in and start or join a team above to share them.
+          </p>
+          <div className="row" style={{ marginTop: 'var(--of-space-5)' }}>
+            <button
+              type="button"
+              className="of-btn of-btn--danger of-btn--sm"
+              onClick={() => {
+                if (
+                  confirm('Reset to the seeded example framework? All people and scores are lost.')
+                )
+                  actions.reset();
+              }}
+            >
+              <RotateCcw size={15} strokeWidth={1.75} />
+              Reset to example
+            </button>
+          </div>
+        </section>
+      ) : team && workspace.isTeam ? (
         <section className="of-card">
           <div className="row" style={{ justifyContent: 'space-between' }}>
             <h3>{team.name}</h3>

@@ -1,20 +1,6 @@
-import { useRef, useState } from 'react';
-import {
-  Cloud,
-  CloudOff,
-  Coins,
-  Download,
-  FileJson,
-  ListChecks,
-  RotateCcw,
-  Upload,
-  UserRound,
-  Users,
-  Wrench,
-} from 'lucide-react';
+import { useState } from 'react';
+import { Cloud, CloudOff, Coins, ListChecks, UserRound, Users, Wrench } from 'lucide-react';
 import { useWorkspace } from './store';
-import type { AppState } from './types';
-import { buildTemplate, downloadJson } from './template';
 import { ThemeToggle } from './components/ThemeToggle';
 import { ProfileMenu } from './components/ProfileMenu';
 import { HomeView } from './views/HomeView';
@@ -53,24 +39,6 @@ export default function App() {
     (workspace.isTeam && session?.user
       ? state.people.find((person) => person.accountId === session.user!.id)?.id
       : null) ?? null;
-  const fileInput = useRef<HTMLInputElement>(null);
-
-  const importJson = async (file: File) => {
-    try {
-      const parsed = JSON.parse(await file.text()) as AppState;
-      if (!parsed.tracks || !parsed.bands) throw new Error('unrecognised file');
-      actions.replaceAll({
-        ...parsed,
-        people: parsed.people ?? [],
-        assessments: workspace.isTeam ? state.assessments : (parsed.assessments ?? []),
-      });
-      setTab('framework');
-    } catch {
-      alert(
-        'That file does not look like a career framework. It needs at least "tracks" and "bands" — download the Template for a working example.',
-      );
-    }
-  };
 
   return (
     <div className="app">
@@ -115,45 +83,6 @@ export default function App() {
             {workspace.isTeam ? (SYNC_LABEL[workspace.status] ?? 'Synced') : 'Local'}
           </span>
 
-          <button
-            type="button"
-            className="of-btn of-btn--ghost of-btn--sm"
-            onClick={() => downloadJson(state, 'career-framework.json')}
-          >
-            <Download size={16} strokeWidth={1.75} />
-            Export
-          </button>
-          <button
-            type="button"
-            className="of-btn of-btn--ghost of-btn--sm"
-            onClick={() => fileInput.current?.click()}
-          >
-            <Upload size={16} strokeWidth={1.75} />
-            Import
-          </button>
-          <button
-            type="button"
-            className="of-btn of-btn--ghost of-btn--sm"
-            title="Download a blank framework file you can fill in and import"
-            onClick={() => downloadJson(buildTemplate(), 'career-framework-template.json')}
-          >
-            <FileJson size={16} strokeWidth={1.75} />
-            Template
-          </button>
-          {!workspace.isTeam ? (
-            <button
-              type="button"
-              className="of-btn of-btn--ghost of-btn--sm"
-              onClick={() => {
-                if (confirm('Reset to the seeded example framework? All people and scores are lost.'))
-                  actions.reset();
-              }}
-            >
-              <RotateCcw size={16} strokeWidth={1.75} />
-              Reset
-            </button>
-          ) : null}
-
           <ThemeToggle />
 
           {session?.user ? (
@@ -170,18 +99,6 @@ export default function App() {
               Sign in
             </a>
           ) : null}
-
-          <input
-            ref={fileInput}
-            type="file"
-            accept="application/json"
-            hidden
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) void importJson(file);
-              e.target.value = '';
-            }}
-          />
         </div>
       </header>
 
@@ -235,7 +152,9 @@ export default function App() {
             />
           )}
           {tab === 'payband' && <PaybandView state={state} actions={actions} />}
-          {tab === 'framework' && <FrameworkView state={state} actions={actions} />}
+          {tab === 'framework' && (
+            <FrameworkView state={state} actions={actions} isTeam={workspace.isTeam} />
+          )}
           {tab === 'assess' && (
             <AssessView
               state={state}
@@ -258,7 +177,12 @@ export default function App() {
             />
           )}
           {tab === 'team' && (
-            <TeamView session={session} workspace={workspace} onLoaded={() => setTab('people')} />
+            <TeamView
+              session={session}
+              workspace={workspace}
+              actions={actions}
+              onLoaded={() => setTab('people')}
+            />
           )}
         </div>
       </main>

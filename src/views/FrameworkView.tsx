@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { FileJson, Plus } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { Download, FileJson, Plus, Upload } from 'lucide-react';
 import type { Actions } from '../store';
 import type { AppState, LeadershipLevel, LevelDescriptors } from '../types';
 import { LEADERSHIP_AXIS, LETTERS, SKILL_AXIS } from '../scoring';
@@ -86,7 +86,33 @@ function AddInline({
   );
 }
 
-export function FrameworkView({ state, actions }: { state: AppState; actions: Actions }) {
+export function FrameworkView({
+  state,
+  actions,
+  isTeam,
+}: {
+  state: AppState;
+  actions: Actions;
+  isTeam: boolean;
+}) {
+  const fileInput = useRef<HTMLInputElement>(null);
+
+  const importJson = async (file: File) => {
+    try {
+      const parsed = JSON.parse(await file.text()) as AppState;
+      if (!parsed.tracks || !parsed.bands) throw new Error('unrecognised file');
+      actions.replaceAll({
+        ...parsed,
+        people: parsed.people ?? [],
+        assessments: isTeam ? state.assessments : (parsed.assessments ?? []),
+      });
+    } catch {
+      alert(
+        'That file does not look like a career framework. It needs at least "tracks" and "bands" — download the Template for a working example.',
+      );
+    }
+  };
+
   return (
     <div className="stack">
       <PageHead title="Framework">
@@ -98,11 +124,26 @@ export function FrameworkView({ state, actions }: { state: AppState; actions: Ac
       <article className="of-card">
         <h3>Bring your own framework</h3>
         <p className="muted" style={{ marginTop: 'var(--of-space-2)' }}>
-          If you would rather write your tracks in a file than click through the editor below,
-          start from the template. It has the full structure, one worked track, and notes on
-          every field. Fill it in, then use Import in the header.
+          Export what you have as a backup, or start from the template — full structure, one
+          worked track, and notes on every field. Fill it in, then import it back.
         </p>
         <div className="row" style={{ marginTop: 'var(--of-space-4)' }}>
+          <button
+            type="button"
+            className="of-btn of-btn--secondary of-btn--md"
+            onClick={() => downloadJson(state, 'career-framework.json')}
+          >
+            <Download size={16} strokeWidth={1.75} />
+            Export
+          </button>
+          <button
+            type="button"
+            className="of-btn of-btn--secondary of-btn--md"
+            onClick={() => fileInput.current?.click()}
+          >
+            <Upload size={16} strokeWidth={1.75} />
+            Import
+          </button>
           <button
             type="button"
             className="of-btn of-btn--secondary of-btn--md"
@@ -111,6 +152,17 @@ export function FrameworkView({ state, actions }: { state: AppState; actions: Ac
             <FileJson size={16} strokeWidth={1.75} />
             Download template
           </button>
+          <input
+            ref={fileInput}
+            type="file"
+            accept="application/json"
+            hidden
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) void importJson(file);
+              e.target.value = '';
+            }}
+          />
         </div>
         <pre className="code" aria-label="Import file shape">{`{
   "currency": "€",

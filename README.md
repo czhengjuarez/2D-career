@@ -247,9 +247,10 @@ need rebuilding. Rotating `JWT_SECRET` signs everyone out.
 For local development put the same three keys in `.dev.vars` (gitignored) and run
 `npx wrangler dev`. R2 is simulated locally unless you pass `--remote`.
 
-Everything in the local workspace is stored in the browser's `localStorage`. Export / Import move a framework
-between machines as JSON, **Template** downloads a blank file with the full structure and
-notes on every field, and Reset restores the seeded example.
+Everything in the local workspace is stored in the browser's `localStorage`. Export / Import /
+Template live together on **Framework**, since they all move the same framework file around.
+Reset lives on **Team**, under "This browser only" — it only ever touches the local workspace,
+so it sits next to the workspace it resets rather than in the global header.
 
 Currency is free text — a symbol (`€`, `$`, `£`), a code (`CHF`, `PLN`, which get a space
 before the number), or empty for bare figures. The seeded amounts are the article's
